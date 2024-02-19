@@ -1,0 +1,4 @@
+mlx_model
+*.gguf
+Modelfile
+.DS_Store
