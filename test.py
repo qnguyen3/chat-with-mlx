@@ -43,7 +43,12 @@ css = """
 """
 
 with gr.Blocks(fill_height=True, css=css) as demo:
-    slider = gr.Slider(10, 100, render=False)
+    with gr.Row():
+        with gr.Column(scale=1):
+            model_name = gr.Dropdown(label='Model',info= 'Choose your model', choices=['stabilityai/stablelm-2-zephyr-1_6b', 'vilm/vinallama-7b-chat'])
+        with gr.Column(scale=4):
+            btn1 = gr.Button("Button 1")
+            btn2 = gr.Button("Button 2")
 
     # Gradio UI inference function
     gr.ChatInterface(
