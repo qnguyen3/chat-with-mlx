@@ -1,3 +1,4 @@
 mlx-lm
 gradio
 tiktoken
+openai
