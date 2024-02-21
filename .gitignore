@@ -2,3 +2,6 @@ mlx_model
 *.gguf
 Modelfile
 .DS_Store
+chat_with_mlx/models/download
+flagged
+*.pyc
