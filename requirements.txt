@@ -2,3 +2,9 @@ mlx-lm
 gradio
 tiktoken
 openai
+langchain
+sentence-transformers
+einops
+chromadb
+pypdf
+youtube-transcript-api
