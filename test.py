@@ -12,6 +12,9 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import Chroma
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_community.document_loaders import YoutubeLoader
+import os
+
+os.environ['TOKENIZERS_PARALLELISM'] = "True"
 
 openai_api_base = "http://127.0.0.1:8080/v1"
 model_dicts, yml_path = model_info()
@@ -20,25 +23,6 @@ client = OpenAI(api_key='EMPTY',base_url=openai_api_base)
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=512, chunk_overlap=50)
 emb = HuggingFaceEmbeddings(model_name='nomic-ai/nomic-embed-text-v1', model_kwargs={'trust_remote_code':True})
 vectorstore = None
-# def load_model(model_name):
-#     global process
-#     model_name_list = model_name.split('/')
-#     local_model_dir = os.path.join(os.getcwd(), 'chat_with_mlx', 'models', 'download', f'{model_name_list[1]}')
-#     if os.path.exists(local_model_dir) == False:
-#         snapshot_download(repo_id=model_dicts[f"{model_name}"], local_dir=local_model_dir)
-#     command = [
-#     "python", "-m", "mlx_lm.server",
-#     "--model", local_model_dir
-#     ]
-#     # Execute the commands
-#     try:
-#         process = subprocess.Popen(command, stdin=subprocess.PIPE, text=True)
-#         process.stdin.write('y\n')
-#         process.stdin.flush()
-#         return {model_status: 'Model Loaded'}
-#     except subprocess.CalledProcessError as e:
-#         print(f"Error executing command: {e}")
-#         return {model_status: e}
 
 def load_model(model_name):
     global process, rag_prompt, rag_his_prompt
@@ -56,19 +40,16 @@ def load_model(model_name):
     ]
     
     try:
-        process = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-        
+        process = subprocess.Popen(command, stdin=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         process.stdin.write('y\n')
         process.stdin.flush()
-        
-        # Wait for the process to complete, or use process.poll() for non-blocking check
-        # returncode = process.poll()
         return {model_status: f"Model Loaded"}
     except Exception as e:
         return {model_status: f"Exception occurred: {str(e)}"}
 
 
 def kill_process():
+    global process
     process.terminate()
     time.sleep(2)
     if process.poll() is None:  # Check if the process has indeed terminated
@@ -86,7 +67,6 @@ def check_file_type(file_path):
         return True
     else:
         return False
-
 
 def upload(files):
     supported = check_file_type(files)
@@ -115,7 +95,10 @@ def indexing(mode, url):
         print(f"Error: {e}")  # This will print the error to the console or log
         return {'index_status': 'Indexing Error', 'error_message': str(e)}
 
-
+def kill_index():
+    global vectorstore
+    vectorstore = None
+    return {index_status: 'Indexing Undone'}
 
 def chatbot(query, history):
     global chat_history
@@ -152,17 +135,17 @@ def chatbot(query, history):
                 chat_history.append({'role': 'assistant', 'content': message[1]})
         chat_history.append({'role': 'user', 'content': query})
         messages = chat_history
-    print(messages)
+    
     response = client.chat.completions.create(
         model='gpt',
         messages=messages,
         temperature=0.2,
-        frequency_penalty=1.05,
+        # frequency_penalty=1.05,
         max_tokens=512,
         stream=True,
     )
-    stop = ['<|im_end|>', '<|endoftext|>', '</s>']
-    partial_message = ""
+    stop = ['<|im_end|>', '<|endoftext|>']
+    partial_message = ''
     for chunk in response:
         if len(chunk.choices) != 0:
             if chunk.choices[0].delta.content not in stop:
@@ -170,6 +153,8 @@ def chatbot(query, history):
             else:
                 partial_message = partial_message + ''
             yield partial_message
+        # else:
+        #     yield partial_message
 
 
 with gr.Blocks(fill_height=True, theme=gr.themes.Soft()) as demo:
@@ -193,7 +178,7 @@ with gr.Blocks(fill_height=True, theme=gr.themes.Soft()) as demo:
                 with gr.Column(scale=9):
                     mode = gr.Dropdown(label='Dataset',info= 'Choose your dataset type', choices=['Files (docx, pdf, txt)', 'YouTube (url)'], scale=5)
                     url = gr.Textbox(label='URL', info='Enter your filepath (URL for Youtube)', interactive=True)
-                    upload_button = gr.UploadButton(label='Upload File')
+                    upload_button = gr.UploadButton(label='Upload File', variant='primary')
                     
                 # data = gr.Textbox(visible=lambda mode: mode == 'YouTube')
                 with gr.Column(scale=1):
@@ -203,8 +188,10 @@ with gr.Blocks(fill_height=True, theme=gr.themes.Soft()) as demo:
                     btn3.click(kill_process, outputs=[model_status])
                     upload_button.upload(upload, inputs=upload_button, outputs=[url, index_status])
 
-                    index_button = gr.Button('Start Indexing')
+                    index_button = gr.Button('Start Indexing', variant='primary')
                     index_button.click(indexing, inputs=[mode, url], outputs=[index_status])
-    
+                    stop_index_button = gr.Button('Stop Indexing')
+                    stop_index_button.click(kill_index, outputs=[index_status])
+
 
 demo.launch(inbrowser=True)
