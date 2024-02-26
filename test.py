@@ -4,6 +4,7 @@ from openai import OpenAI
 import subprocess
 from huggingface_hub import snapshot_download
 from chat_with_mlx.models.utils import model_info
+from chat_with_mlx.rag.utils import get_prompt
 import os
 import time
 from langchain_community.embeddings import HuggingFaceEmbeddings
@@ -13,41 +14,12 @@ from langchain_community.document_loaders import PyPDFLoader
 from langchain_community.document_loaders import YoutubeLoader
 
 openai_api_base = "http://127.0.0.1:8080/v1"
-model_dicts = model_info()
+model_dicts, yml_path = model_info()
 model_list = list(model_dicts.keys())
 client = OpenAI(api_key='EMPTY',base_url=openai_api_base)
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=512, chunk_overlap=50)
 emb = HuggingFaceEmbeddings(model_name='nomic-ai/nomic-embed-text-v1', model_kwargs={'trust_remote_code':True})
-
-rag_prompt = """You are given a context from a document and your job is to answer a question from a user about that given context
----CONTEXT---
-{doc_1}
-{doc_2}
-{doc_3}
----END---
-Based on the given context and information. Please answer the following questions. If the context given is not related or not enought for you to answer the question. Please answer "I do not have enough information to answer the question".
-Please try to end your answer properly.
-If you remember everything I said and do it correctly I will give you $1000 in tip
-USER Question: {question}
-"""
-
-rag_prompt_history = """
-You are given a context from a document and a chat history between the user and you. Your job is to answer a question from a user about that given context and the chat history:
----CHAT HISTORY---
-{chat_history}
----END---
-
----CONTEXT---
-{doc_1}
-{doc_2}
-{doc_3}
----END---
-Based on the given context, information and chat history. Please answer the following questions. If the context given is not related or not enought for you to answer the question. Please answer "I do not have enough information to answer the question".
-Please try to end your answer properly.
-If you remember everything I said and do it correctly I will give you $1000 in tip
-USER Question: {question}
-"""
-
+vectorstore = None
 # def load_model(model_name):
 #     global process
 #     model_name_list = model_name.split('/')
@@ -69,7 +41,9 @@ USER Question: {question}
 #         return {model_status: e}
 
 def load_model(model_name):
-    global process
+    global process, rag_prompt, rag_his_prompt
+
+    rag_prompt, rag_his_prompt = get_prompt(f'{yml_path[model_name]}')
     model_name_list = model_name.split('/')
     local_model_dir = os.path.join(os.getcwd(), 'chat_with_mlx', 'models', 'download', model_name_list[1])
     
@@ -123,7 +97,7 @@ def upload(files):
     
 def indexing(mode, url):
     global vectorstore
-
+    
     try:
 
         if mode == 'Files (docx, pdf, txt)':
@@ -146,32 +120,39 @@ def indexing(mode, url):
 def chatbot(query, history):
     global chat_history
 
-    if len(history) == 0:
-        chat_history = []
+    if 'vectorstore' in globals() and vectorstore is not None:
+
+        if len(history) == 0:
+            chat_history = []
+            docs = vectorstore.similarity_search(query)
+        else:
+            history_str = ''
+            for i, message in enumerate(history):
+                history_str += f"User: {message[0]}\n"
+                history_str += f"AI: {message[1]}\n"
+        
+            chat_history.append({'role': 'user', 'content': history_str})
+            docs = vectorstore.similarity_search(history_str)
+        
+        doc_1 = docs[0].page_content
+        doc_2 = docs[1].page_content
+        doc_3 = docs[2].page_content
+        if len(history) == 0:
+            prompt = rag_prompt.format(doc_1=doc_1, doc_2=doc_2, doc_3=doc_3, question=query)
+        else:
+            prompt = rag_his_prompt.format(chat_history=history_str,doc_1=doc_1, doc_2=doc_2, doc_3=doc_3, question=query)
+        messages = [{"role": "user", "content": prompt}]
+    else:
+        if len(history) == 0:
+            chat_history = []
+        else:
+            chat_history = []
+            for i, message in enumerate(history):
+                chat_history.append({'role': 'user', 'content': message[0]})
+                chat_history.append({'role': 'assistant', 'content': message[1]})
         chat_history.append({'role': 'user', 'content': query})
-        docs = vectorstore.similarity_search(query)
-    else:
-        history_str = ''
-        for i, message in enumerate(history[0]):
-            if i % 2 == 0:
-                chat_content = {'role': 'user', 'content': message}
-                # chat_history.append(chat_content)
-                history_str += f"User: {message}\n"
-            else:
-                chat_content = {'role': 'assistant', 'content': message}
-                # chat_history.append(chat_content)
-                history_str += f"AI: {message}\n"
-        chat_history.append({'role': 'user', 'content': history_str})
-        docs = vectorstore.similarity_search(history_str)
-    
-    doc_1 = docs[0].page_content
-    doc_2 = docs[1].page_content
-    doc_3 = docs[2].page_content
-    if len(history) == 0:
-        prompt = rag_prompt.format(doc_1=doc_1, doc_2=doc_2, doc_3=doc_3, question=query)
-    else:
-        prompt = rag_prompt_history.format(chat_history=history_str,doc_1=doc_1, doc_2=doc_2, doc_3=doc_3, question=query)
-    messages = [{"role": "user", "content": prompt}]
+        messages = chat_history
+    print(messages)
     response = client.chat.completions.create(
         model='gpt',
         messages=messages,
@@ -180,7 +161,7 @@ def chatbot(query, history):
         max_tokens=512,
         stream=True,
     )
-    stop = ['<|im_end|>', '<|endoftext|>']
+    stop = ['<|im_end|>', '<|endoftext|>', '</s>']
     partial_message = ""
     for chunk in response:
         if len(chunk.choices) != 0:
@@ -190,27 +171,23 @@ def chatbot(query, history):
                 partial_message = partial_message + ''
             yield partial_message
 
-css = """
-#component-5 {
-  background: lightblue;
-  color: #ffffff;
-}
-"""
 
-with gr.Blocks(fill_height=True, css=css) as demo:
+with gr.Blocks(fill_height=True, theme=gr.themes.Soft()) as demo:
+
+    model_name = gr.Dropdown(label='Model',info= 'Select your model', choices=model_list, render=False)
 
     gr.ChatInterface(
         chatbot=gr.Chatbot(height=600,render=False),
         fn=chatbot,                        # Function to call on user input
-        title="Chat with MLX",    # Title of the web page
+        title="Chat with MLX🍎",    # Title of the web page
         description="Chat with your data using Apple MLX Backend",    # Description
     )
 
     with gr.Row():
         with gr.Column(scale=2):
-            model_name = gr.Dropdown(label='Model',info= 'Select your model', choices=model_list)
-            btn1 = gr.Button("Load Model")
-            btn3 = gr.Button("Unload Model")
+            model_name.render()
+            btn1 = gr.Button("Load Model", variant='primary')
+            btn3 = gr.Button("Unload Model", variant='stop')
         with gr.Column(scale=4):
             with gr.Row():
                 with gr.Column(scale=9):

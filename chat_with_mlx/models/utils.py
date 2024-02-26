@@ -15,13 +15,15 @@ def load_yaml_config(config_path):
 
 def process_yaml(yaml_path):
     config = load_yaml_config(yaml_path)
-    return {f'{config["original_repo"]}': config["mlx-repo"]}
+    return {f'{config["original_repo"]}': config["mlx-repo"]}, {f'{config["original_repo"]}': yaml_path}
 
 def model_info():
     model_list = {}
+    yml_list = {}
     yaml_files = get_yaml_files('chat_with_mlx/models/configs/')
     for file in yaml_files:
-        model_dict = process_yaml(file)
+        model_dict, yml_path = process_yaml(file)
         model_list.update(model_dict)
+        yml_list.update(yml_path)
 
-    return model_list
+    return model_list, yml_list
