@@ -6,7 +6,7 @@ This repository showcases a Retrieval-augmented Generation (RAG) chat interface 
 
 ## Features
 - **Chat with your Data**: `doc(x), pdf, txt` and YouTube video via URL.
-- **Multilingual**: English, Spanish, Chinese and Vietnamese.
+- **Multilingual**: English🏴󠁧󠁢󠁥󠁮󠁧󠁿, Spanish🇪🇸, Chinese 🇨🇳 and Vietnamese🇻🇳.
 - **Easy Integration**: Easy integrate any HuggingFace and MLX Compatible Open-Source Model.
 
 ## How to Use
@@ -96,4 +96,11 @@ Some key features of MLX include:
    is the *unified memory model*. Arrays in MLX live in shared memory.
    Operations on MLX arrays can be performed on any of the supported
    device types without transferring data.
+
+## Acknowledgement
+I would like to send my many thanks to:
+- The Apple Machine Learning Research team for the amazing MLX library.
+- LangChain and ChromaDB for such easy RAG Implementation
+- People from Nous, VinBigData and Qwen team that helped me during the implementation.
+
 
