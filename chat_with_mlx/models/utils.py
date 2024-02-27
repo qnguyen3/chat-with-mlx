@@ -1,7 +1,7 @@
 import os
 import yaml
 
-flags = {'vi': "🇻🇳", 'en': "🏴󠁧󠁢󠁥󠁮󠁧󠁿", 'zh': "🇨🇳", 'es': "🇪🇸"}
+flags = {'vi': "🇻🇳", 'en': "🏴󠁧󠁢󠁥󠁮󠁧󠁿", 'zh': "🇨🇳", 'es': "🇪🇸", 'multi': "🌍"}
 
 def get_yaml_files(directory):
     yaml_files = []
@@ -34,17 +34,19 @@ def process_yaml(yaml_path):
     else:
         final_config = final_config
         
-    return {f'{config["original_repo"]}': config["mlx-repo"]}, {f'{config["original_repo"]}': yaml_path}, {f'{final_config}': config["original_repo"]}
+    return {f'{config["original_repo"]}': config["mlx-repo"]}, {f'{config["original_repo"]}': yaml_path}, {f'{final_config}': config["original_repo"]}, {f'{final_config}': config["mlx-repo"]}
 
 def model_info():
     model_list = {}
     yml_list = {}
     final_cfg_list = {}
+    mlx_config_list = {}
     yaml_files = get_yaml_files('chat_with_mlx/models/configs/')
     for file in yaml_files:
-        model_dict, yml_path, final_cfg = process_yaml(file)
+        model_dict, yml_path, final_cfg, mlx_config = process_yaml(file)
         model_list.update(model_dict)
         yml_list.update(yml_path)
         final_cfg_list.update(final_cfg)
+        mlx_config_list.update(mlx_config)
 
-    return model_list, yml_list, final_cfg_list
+    return model_list, yml_list, final_cfg_list, mlx_config_list

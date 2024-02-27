@@ -1,0 +1,4 @@
+original_repo: google/gemma-7b-it
+mlx-repo: mlx-community/quantized-gemma-7b-it
+quantize: 4bit
+default_language: multi

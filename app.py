@@ -10,14 +10,14 @@ import time
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import Chroma
-from langchain_community.document_loaders import PyPDFLoader
+from langchain_community.document_loaders import PyPDFLoader, Docx2txtLoader, TextLoader
 from langchain_community.document_loaders import YoutubeLoader
 import os
 
 os.environ['TOKENIZERS_PARALLELISM'] = "False"
 
 openai_api_base = "http://127.0.0.1:8080/v1"
-model_dicts, yml_path, cfg_list = model_info()
+model_dicts, yml_path, cfg_list, mlx_config = model_info()
 model_list = list(cfg_list.keys())
 client = OpenAI(api_key='EMPTY',base_url=openai_api_base)
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=512, chunk_overlap=50)
@@ -36,7 +36,7 @@ def load_model(model_name, lang):
     local_model_dir = os.path.join(os.getcwd(), 'chat_with_mlx', 'models', 'download', model_name_list[1])
     
     if not os.path.exists(local_model_dir):
-        snapshot_download(repo_id=cfg_list[model_name], local_dir=local_model_dir)
+        snapshot_download(repo_id=mlx_config[model_name], local_dir=local_model_dir)
     
     command = [
         "python", "-m", "mlx_lm.server",
@@ -85,7 +85,12 @@ def indexing(mode, url):
     try:
 
         if mode == 'Files (docx, pdf, txt)':
-            loader = PyPDFLoader(url)
+            if url.endswith('.pdf'):
+                loader = PyPDFLoader(url)
+            elif url.endswith('.docx'):
+                loader = Docx2txtLoader(url)
+            elif url.endswith('.txt'):
+                loader = TextLoader(url)
             splits = loader.load_and_split(text_splitter)
         elif mode == 'YouTube (url)':
             loader = YoutubeLoader.from_youtube_url(url, 
@@ -180,7 +185,7 @@ def chatbot(query, history, temp, max_tokens, freq_penalty, k_docs):
 
 with gr.Blocks(fill_height=True, theme=gr.themes.Soft()) as demo:
 
-    model_name = gr.Dropdown(label='Model',info= 'Select your model', choices=model_list, interactive=True, render=False)
+    model_name = gr.Dropdown(label='Model',info= 'Select your model', choices=sorted(model_list), interactive=True, render=False)
     temp_slider = gr.State(0.2)
     max_gen_token = gr.State(512)
     freq_penalty = gr.State(1.05)

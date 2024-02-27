@@ -1,0 +1,4 @@
+original_repo: NousResearch/Nous-Hermes-2-Mixtral-8x7B-DPO
+mlx-repo: mlx-community/Nous-Hermes-2-Mixtral-8x7B-DPO-4bit
+quantize: 4bit
+default_language: multi

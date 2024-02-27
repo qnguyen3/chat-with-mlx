@@ -4,7 +4,9 @@ from .rag_prompt import *
 prompt_dict = {'en': [rag_prompt_default_en, rag_prompt_history_default_en],
                'vi': [rag_prompt_default_vi, rag_prompt_history_default_vi],
                'es': [rag_prompt_default_es, rag_prompt_history_default_es],
-               'zh': [rag_prompt_default_zh, rag_prompt_history_default_zh]}
+               'zh': [rag_prompt_default_zh, rag_prompt_history_default_zh],
+               'multi': [rag_prompt_default_en, rag_prompt_history_default_en]
+               }
 
 
 

@@ -1,0 +1,4 @@
+original_repo: mistralai/Mixtral-8x7B-Instruct-v0.1
+mlx-repo: mlx-community/Mixtral-8x7B-v0.1-hf-4bit-mlx
+quantize: 4bit
+default_language: multi
