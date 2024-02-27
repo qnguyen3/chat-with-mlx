@@ -1,2 +1,3 @@
 original_repo: vilm/Quyen-v0.1
 mlx-repo: vilm/Quyen-v0.1-mlx-4bit
+system_prompt: "You are a helpful AI assistant."

@@ -1,0 +1,4 @@
+original_repo: NousResearch/Nous-Hermes-2-Mistral-7B-DPO
+mlx-repo: mlx-community/Nous-Hermes-2-Mistral-7B-DPO-4bit-MLX
+quantize: 4bit
+system_prompt: "You are a helpful AI assistant."

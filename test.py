@@ -14,25 +14,29 @@ from langchain_community.document_loaders import PyPDFLoader
 from langchain_community.document_loaders import YoutubeLoader
 import os
 
-os.environ['TOKENIZERS_PARALLELISM'] = "True"
+os.environ['TOKENIZERS_PARALLELISM'] = "False"
 
 openai_api_base = "http://127.0.0.1:8080/v1"
-model_dicts, yml_path = model_info()
-model_list = list(model_dicts.keys())
+model_dicts, yml_path, cfg_list = model_info()
+model_list = list(cfg_list.keys())
 client = OpenAI(api_key='EMPTY',base_url=openai_api_base)
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=512, chunk_overlap=50)
-emb = HuggingFaceEmbeddings(model_name='nomic-ai/nomic-embed-text-v1', model_kwargs={'trust_remote_code':True})
+emb = HuggingFaceEmbeddings(model_name='nomic-ai/nomic-embed-text-v1.5', model_kwargs={'trust_remote_code':True})
 vectorstore = None
 
-def load_model(model_name):
-    global process, rag_prompt, rag_his_prompt
+def load_model(model_name, lang):
+    global process, rag_prompt, rag_his_prompt, sys_prompt, default_lang
 
-    rag_prompt, rag_his_prompt = get_prompt(f'{yml_path[model_name]}')
-    model_name_list = model_name.split('/')
+    default_lang = 'default'
+
+
+    prompts, sys_prompt = get_prompt(f'{yml_path[cfg_list[model_name]]}', lang)
+    rag_prompt, rag_his_prompt = prompts[0], prompts[1]
+    model_name_list = cfg_list[model_name].split('/')
     local_model_dir = os.path.join(os.getcwd(), 'chat_with_mlx', 'models', 'download', model_name_list[1])
     
     if not os.path.exists(local_model_dir):
-        snapshot_download(repo_id=model_dicts[model_name], local_dir=local_model_dir)
+        snapshot_download(repo_id=cfg_list[model_name], local_dir=local_model_dir)
     
     command = [
         "python", "-m", "mlx_lm.server",
@@ -62,7 +66,7 @@ def check_file_type(file_path):
     # Check for document file extensions
     if file_path.endswith('.pdf') or file_path.endswith('.txt') or file_path.endswith('.doc') or file_path.endswith('.docx'):
         return True
-    # Check for YouTube link formats
+        # Check for YouTube link formats
     elif file_path.startswith('https://www.youtube.com/') or file_path.startswith('https://youtube.com/') or file_path.startswith('https://youtu.be/'):
         return True
     else:
@@ -108,19 +112,24 @@ def build_rag_context(docs):
     return context
 
 def chatbot(query, history, temp, max_tokens, freq_penalty, k_docs):
-    global chat_history
+    global chat_history, sys_prompt
 
+    
     if 'vectorstore' in globals() and vectorstore is not None:
 
         if len(history) == 0:
             chat_history = []
+            if sys_prompt is not None:
+                chat_history.append({'role': 'system', 'content': sys_prompt})
             docs = vectorstore.similarity_search(query, k=k_docs)
         else:
             history_str = ''
             for i, message in enumerate(history):
                 history_str += f"User: {message[0]}\n"
                 history_str += f"AI: {message[1]}\n"
-        
+
+            if sys_prompt is not None:
+                chat_history.append({'role': 'system', 'content': sys_prompt})
             chat_history.append({'role': 'user', 'content': history_str})
             docs = vectorstore.similarity_search(history_str)
 
@@ -135,14 +144,21 @@ def chatbot(query, history, temp, max_tokens, freq_penalty, k_docs):
     else:
         if len(history) == 0:
             chat_history = []
+            if sys_prompt is not None:
+                chat_history.append({'role': 'system', 'content': sys_prompt})
         else:
             chat_history = []
+            if sys_prompt is not None:
+                chat_history.append({'role': 'system', 'content': sys_prompt})
             for i, message in enumerate(history):
                 chat_history.append({'role': 'user', 'content': message[0]})
                 chat_history.append({'role': 'assistant', 'content': message[1]})
         chat_history.append({'role': 'user', 'content': query})
         messages = chat_history
-    
+
+    # Uncomment for debugging    
+    # print(messages)
+        
     response = client.chat.completions.create(
         model='gpt',
         messages=messages,
@@ -160,17 +176,16 @@ def chatbot(query, history, temp, max_tokens, freq_penalty, k_docs):
             else:
                 partial_message = partial_message + ''
             yield partial_message
-        # else:
-        #     yield partial_message
 
 
 with gr.Blocks(fill_height=True, theme=gr.themes.Soft()) as demo:
 
-    model_name = gr.Dropdown(label='Model',info= 'Select your model', choices=model_list, render=False)
+    model_name = gr.Dropdown(label='Model',info= 'Select your model', choices=model_list, interactive=True, render=False)
     temp_slider = gr.State(0.2)
     max_gen_token = gr.State(512)
     freq_penalty = gr.State(1.05)
     retrieve_docs = gr.State(3)
+    language = gr.State('default')
     gr.ChatInterface(
         chatbot=gr.Chatbot(height=600,render=False),
         fn=chatbot,                        # Function to call on user input
@@ -190,6 +205,7 @@ with gr.Blocks(fill_height=True, theme=gr.themes.Soft()) as demo:
     with gr.Row():
         with gr.Column(scale=2):
             model_name.render()
+            language = gr.Dropdown(label='Language', choices=['default', 'English', 'Spanish', 'Chinese', 'Vietnamese'], value='default', interactive=True)
             btn1 = gr.Button("Load Model", variant='primary')
             btn3 = gr.Button("Unload Model", variant='stop')
         with gr.Column(scale=4):
@@ -203,7 +219,7 @@ with gr.Blocks(fill_height=True, theme=gr.themes.Soft()) as demo:
                 with gr.Column(scale=1):
                     model_status = gr.Textbox('Model Not Loaded', label='Model Status')
                     index_status = gr.Textbox("Not Index", label='Index Status')
-                    btn1.click(load_model, inputs=[model_name], outputs=[model_status])
+                    btn1.click(load_model, inputs=[model_name, language], outputs=[model_status])
                     btn3.click(kill_process, outputs=[model_status])
                     upload_button.upload(upload, inputs=upload_button, outputs=[url, index_status])
 
@@ -211,7 +227,5 @@ with gr.Blocks(fill_height=True, theme=gr.themes.Soft()) as demo:
                     index_button.click(indexing, inputs=[mode, url], outputs=[index_status])
                     stop_index_button = gr.Button('Stop Indexing')
                     stop_index_button.click(kill_index, outputs=[index_status])
-    
-
 
 demo.launch(inbrowser=True)

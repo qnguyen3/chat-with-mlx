@@ -1,0 +1,5 @@
+original_repo: LR-AI-Labs/vbd-llama2-7B-50b-chat
+mlx-repo: ontocord/vbd-llama2-7B-50b-chat-mlx-4bit
+default_language: vi
+quantize: 4bit
+system_prompt: "A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions."

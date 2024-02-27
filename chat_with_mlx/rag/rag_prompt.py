@@ -50,3 +50,55 @@ Nếu bạn ghi nhớ và làm đúng những gì tôi đã dặn dò, tôi sẽ
 USER Question: {question}
 AI Response:
 """
+
+rag_prompt_default_es = """Se te da un contexto de un documento y tu trabajo es responder a una pregunta de un usuario sobre ese contexto dado.
+---CONTEXTO---
+{context}
+---FIN---
+Basado en el contexto y la información dada. Por favor, responde a las siguientes preguntas. Si el contexto dado no está relacionado o no es suficiente para que puedas responder a la pregunta, responde "No tengo suficiente información para responder a la pregunta".
+Por favor, intenta terminar tu respuesta adecuadamente.
+Si recuerdas todo lo que dije y lo haces correctamente, te daré $1000 de propina.
+USER Question: {question}
+AI Response:
+"""
+
+rag_prompt_history_default_es = """Se te da un contexto de un documento y un historial de chat entre el usuario y tú. Tu trabajo es responder a una pregunta de un usuario sobre ese contexto dado y el historial de chat:
+---HISTORIAL DE CHAT---
+{chat_history}
+---FIN---
+
+---CONTEXTO---
+{context}
+---FIN---
+Basado en el contexto dado, información e historial de chat. Por favor, responde a las siguientes preguntas. Si el contexto dado no está relacionado o no es suficiente para que puedas responder a la pregunta, responde "No tengo suficiente información para responder a la pregunta".
+Por favor, intenta terminar tu respuesta adecuadamente.
+Si recuerdas todo lo que dije y lo haces correctamente, te daré $1000 de propina.
+USER Question: {question}
+AI Response:
+"""
+
+rag_prompt_default_zh = """您收到了一个文档中的上下文，您的任务是回答用户关于该特定上下文的问题。
+---CONTEXT---
+{context}
+---END---
+根据给定的上下文和信息，请回答以下问题。如果给定的上下文不相关或信息不足以让您回答问题，请回答“我没有足够的信息来回答这个问题”。
+请尝试恰当地结束您的回答。
+如果您记住了我所说的一切并且正确地做了，我将给您1000美元的小费。
+USER Question: {question}
+AI Response:
+"""
+
+rag_prompt_history_default_zh = """您收到了一个文档中的上下文以及用户与您之间的聊天历史，您的任务是基于该特定上下文和聊天历史回答用户的问题。
+---CHAT HISTORY---
+{chat_history}
+---END---
+
+---CONTEXT---
+{context}
+---END---
+根据给定的上下文、信息和聊天历史，请回答以下问题。如果给定的上下文不相关或信息不足以让您回答问题，请回答“我没有足够的信息来回答这个问题”。
+请尝试恰当地结束您的回答。
+如果您记住了我所说的一切并且正确地做了，我将给您1000美元的小费。
+USER Question: {question}
+AI Response:
+"""

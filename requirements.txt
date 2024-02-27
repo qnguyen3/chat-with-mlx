@@ -8,3 +8,4 @@ einops
 chromadb
 pypdf
 youtube-transcript-api
+sentencepiece

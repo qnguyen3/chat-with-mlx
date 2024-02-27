@@ -1,0 +1,4 @@
+original_repo: teknium/OpenHermes-2.5-Mistral-7B
+mlx-repo: mlx-community/OpenHermes-2.5-Mistral-7B-4bit-mlx
+quantize: 4bit
+system_prompt: "You are a helpful AI assistant."
