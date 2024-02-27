@@ -32,7 +32,7 @@ pip install -r requirements.txt
 
 ## Add Your Own Models
 ### Solution 1:
-This solution only requires you to add your own model with a simple .yaml config file in `chat_with_mlx\models\configs`
+This solution only requires you to add your own model with a simple .yaml config file in `chat_with_mlx/models/configs`
 
 `examlple.yaml`:
 ```yaml
@@ -46,7 +46,7 @@ After adding the .yaml config, you can go and load the model inside the app (for
 ### Solution 2:
 Do the same as Solution 1. Sometimes, the `download_snapshot` method that is used to download the models are slow, and you would like to download it by your own.
 
-After the adding the .yaml config, you can download the repo by yourself and add it to `chat_with_mlx\models\download`. The folder name MUST be the same as the orginal repo name without the username (so `google/gemma-2b-it` -> `gemma-2b-it`).
+After the adding the .yaml config, you can download the repo by yourself and add it to `chat_with_mlx/models/download`. The folder name MUST be the same as the orginal repo name without the username (so `google/gemma-2b-it` -> `gemma-2b-it`).
 
 A complete model should have the following files:
 - `model.safetensors`
