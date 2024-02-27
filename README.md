@@ -2,7 +2,7 @@
 
 This repository showcases a Retrieval-augmented Generation (RAG) chat interface with support for multiple open-source models.
 
-![chat_with_mlx](assets/chat_w_mlx.gif)
+![chat_with_mlx](assets/chat-w-mlx.gif)
 
 ## Features
 - **Chat with your Data**: `doc(x), pdf, txt` and YouTube video via URL.
