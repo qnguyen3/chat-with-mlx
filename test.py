@@ -100,14 +100,21 @@ def kill_index():
     vectorstore = None
     return {index_status: 'Indexing Undone'}
 
-def chatbot(query, history):
+def build_rag_context(docs):
+    context = ''
+    for doc in docs:
+        context += doc.page_content + '\n'
+
+    return context
+
+def chatbot(query, history, temp, max_tokens, freq_penalty, k_docs):
     global chat_history
 
     if 'vectorstore' in globals() and vectorstore is not None:
 
         if len(history) == 0:
             chat_history = []
-            docs = vectorstore.similarity_search(query)
+            docs = vectorstore.similarity_search(query, k=k_docs)
         else:
             history_str = ''
             for i, message in enumerate(history):
@@ -116,14 +123,14 @@ def chatbot(query, history):
         
             chat_history.append({'role': 'user', 'content': history_str})
             docs = vectorstore.similarity_search(history_str)
-        
-        doc_1 = docs[0].page_content
-        doc_2 = docs[1].page_content
-        doc_3 = docs[2].page_content
+
+
+        context = build_rag_context(docs)
+
         if len(history) == 0:
-            prompt = rag_prompt.format(doc_1=doc_1, doc_2=doc_2, doc_3=doc_3, question=query)
+            prompt = rag_prompt.format(context=context, question=query)
         else:
-            prompt = rag_his_prompt.format(chat_history=history_str,doc_1=doc_1, doc_2=doc_2, doc_3=doc_3, question=query)
+            prompt = rag_his_prompt.format(chat_history=history_str, context=context, question=query)
         messages = [{"role": "user", "content": prompt}]
     else:
         if len(history) == 0:
@@ -139,9 +146,9 @@ def chatbot(query, history):
     response = client.chat.completions.create(
         model='gpt',
         messages=messages,
-        temperature=0.2,
-        # frequency_penalty=1.05,
-        max_tokens=512,
+        temperature=temp,
+        frequency_penalty=freq_penalty,
+        max_tokens=max_tokens,
         stream=True,
     )
     stop = ['<|im_end|>', '<|endoftext|>']
@@ -160,13 +167,25 @@ def chatbot(query, history):
 with gr.Blocks(fill_height=True, theme=gr.themes.Soft()) as demo:
 
     model_name = gr.Dropdown(label='Model',info= 'Select your model', choices=model_list, render=False)
-
+    temp_slider = gr.State(0.2)
+    max_gen_token = gr.State(512)
+    freq_penalty = gr.State(1.05)
+    retrieve_docs = gr.State(3)
     gr.ChatInterface(
         chatbot=gr.Chatbot(height=600,render=False),
         fn=chatbot,                        # Function to call on user input
         title="Chat with MLX🍎",    # Title of the web page
         description="Chat with your data using Apple MLX Backend",    # Description
+        additional_inputs=[temp_slider, max_gen_token, freq_penalty, retrieve_docs]
     )
+    with gr.Accordion("Advanced Setting", open=False):
+        with gr.Row():
+            with gr.Column(scale=2):
+                temp_slider = gr.Slider(label='Temperature', value=0.2, minimum=0.0, maximum=1.0, step=0.05, interactive=True)
+                max_gen_token = gr.Slider(label='Max Tokens', value=512, minimum=512, maximum=4096, step=256, interactive=True)
+            with gr.Column(scale=2):
+                freq_penalty = gr.Slider(label='Frequency Penalty', value=1.05, minimum=-2, maximum=2, step=0.05, interactive=True)
+                retrieve_docs = gr.Slider(label='No. Retrieval Docs', value=3, minimum=1, maximum=10, step=1, interactive=True)
 
     with gr.Row():
         with gr.Column(scale=2):
@@ -192,6 +211,7 @@ with gr.Blocks(fill_height=True, theme=gr.themes.Soft()) as demo:
                     index_button.click(indexing, inputs=[mode, url], outputs=[index_status])
                     stop_index_button = gr.Button('Stop Indexing')
                     stop_index_button.click(kill_index, outputs=[index_status])
+    
 
 
 demo.launch(inbrowser=True)
