@@ -24,7 +24,7 @@ pip install -r requirements.txt
 ## Supported Models
 - Google Gemma-7b-it, Gemma-2b-it
 - Mistral-7B-Instruct, OpenHermes-2.5-Mistral-7B, NousHermes-2-Mistral-7B-DPO
-- Mixtral-8x7B-Instruct-v0.1, Mixtral-8x7B-Instruct-v0.1 
+- Mixtral-8x7B-Instruct-v0.1, Nous-Hermes-2-Mixtral-8x7B-DPO
 - Quyen-SE (0.5B), Quyen (4B)
 - StableLM 2 Zephyr (1.6B)
 - Vistral-7B-Chat, VBD-Llama2-50b-chat, vinallama-7b-chat
