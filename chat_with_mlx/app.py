@@ -233,4 +233,10 @@ with gr.Blocks(fill_height=True, theme=gr.themes.Soft()) as demo:
                     stop_index_button = gr.Button('Stop Indexing')
                     stop_index_button.click(kill_index, outputs=[index_status])
 
-demo.launch(inbrowser=True)
+
+def main():
+    demo.launch(inbrowser=True)
+
+
+if __name__ == "__main__":
+    main()
