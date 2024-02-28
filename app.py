@@ -210,7 +210,7 @@ with gr.Blocks(fill_height=True, theme=gr.themes.Soft()) as demo:
     with gr.Row():
         with gr.Column(scale=2):
             model_name.render()
-            language = gr.Dropdown(label='Language', choices=['default', 'English', 'Spanish', 'Chinese', 'Vietnamese'], value='default', interactive=True)
+            language = gr.Dropdown(label='Language', choices=['default', 'English', 'Spanish', 'Chinese', 'Vietnamese','Turkish'], value='default', interactive=True)
             btn1 = gr.Button("Load Model", variant='primary')
             btn3 = gr.Button("Unload Model", variant='stop')
         with gr.Column(scale=4):

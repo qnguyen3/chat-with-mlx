@@ -1,7 +1,7 @@
 import os
 import yaml
 
-flags = {'vi': "🇻🇳", 'en': "🏴󠁧󠁢󠁥󠁮󠁧󠁿", 'zh': "🇨🇳", 'es': "🇪🇸", 'multi': "🌍"}
+flags = {'vi': "🇻🇳", 'en': "🏴󠁧󠁢󠁥󠁮󠁧󠁿", 'zh': "🇨🇳", 'es': "🇪🇸", 'tr': "🇹🇷", 'multi': "🌍"}
 
 def get_yaml_files(directory):
     yaml_files = []
