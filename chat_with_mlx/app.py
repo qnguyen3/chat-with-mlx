@@ -33,7 +33,8 @@ def load_model(model_name, lang):
     prompts, sys_prompt = get_prompt(f'{yml_path[cfg_list[model_name]]}', lang)
     rag_prompt, rag_his_prompt = prompts[0], prompts[1]
     model_name_list = cfg_list[model_name].split('/')
-    local_model_dir = os.path.join(os.getcwd(), 'chat_with_mlx', 'models', 'download', model_name_list[1])
+    directory_path = os.path.dirname(os.path.abspath(__file__))
+    local_model_dir = os.path.join(directory_path, 'models', 'download', model_name_list[1])
     
     if not os.path.exists(local_model_dir):
         snapshot_download(repo_id=mlx_config[model_name], local_dir=local_model_dir)
