@@ -6,7 +6,7 @@ This repository showcases a Retrieval-augmented Generation (RAG) chat interface 
 
 ## Features
 - **Chat with your Data**: `doc(x), pdf, txt` and YouTube video via URL.
-- **Multilingual**: English, Spanish, Chinese and Vietnamese.
+- **Multilingual**: English🏴󠁧󠁢󠁥󠁮󠁧󠁿, Spanish🇪🇸, Chinese 🇨🇳 and Vietnamese🇻🇳.
 - **Easy Integration**: Easy integrate any HuggingFace and MLX Compatible Open-Source Model.
 
 ## How to Use
@@ -27,12 +27,12 @@ pip install -r requirements.txt
 - Mixtral-8x7B-Instruct-v0.1, Nous-Hermes-2-Mixtral-8x7B-DPO
 - Quyen-SE (0.5B), Quyen (4B)
 - StableLM 2 Zephyr (1.6B)
-- Vistral-7B-Chat, VBD-Llama2-50b-chat, vinallama-7b-chat
+- Vistral-7B-Chat, VBD-Llama2-7b-chat, vinallama-7b-chat
 
 
 ## Add Your Own Models
 ### Solution 1:
-This solution only requires you to add your own model with a simple .yaml config file in `chat_with_mlx\models\configs`
+This solution only requires you to add your own model with a simple .yaml config file in `chat_with_mlx/models/configs`
 
 `examlple.yaml`:
 ```yaml
@@ -46,7 +46,7 @@ After adding the .yaml config, you can go and load the model inside the app (for
 ### Solution 2:
 Do the same as Solution 1. Sometimes, the `download_snapshot` method that is used to download the models are slow, and you would like to download it by your own.
 
-After the adding the .yaml config, you can download the repo by yourself and add it to `chat_with_mlx\models\download`. The folder name MUST be the same as the orginal repo name without the username (so `google/gemma-2b-it` -> `gemma-2b-it`).
+After the adding the .yaml config, you can download the repo by yourself and add it to `chat_with_mlx/models/download`. The folder name MUST be the same as the orginal repo name without the username (so `google/gemma-2b-it` -> `gemma-2b-it`).
 
 A complete model should have the following files:
 - `model.safetensors`
@@ -97,3 +97,12 @@ Some key features of MLX include:
    Operations on MLX arrays can be performed on any of the supported
    device types without transferring data.
 
+## Acknowledgement
+I would like to send my many thanks to:
+- The Apple Machine Learning Research team for the amazing MLX library.
+- LangChain and ChromaDB for such easy RAG Implementation
+- People from Nous, VinBigData and Qwen team that helped me during the implementation.
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=qnguyen3/chat-with-mlx&type=Date)](https://star-history.com/#qnguyen3/chat-with-mlx&Date)
