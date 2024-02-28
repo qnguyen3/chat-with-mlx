@@ -102,3 +102,30 @@ rag_prompt_history_default_zh = """您收到了一个文档中的上下文以及
 USER Question: {question}
 AI Response:
 """
+
+rag_prompt_default_tr = """Bir belgeden bir bağlam verilir ve göreviniz, verilen bağlam hakkında bir kullanıcının sorusunu yanıtlamaktır
+---CONTEXT---
+{context}
+---END---
+Verilen bağlam ve bilgilere dayanarak lütfen aşağıdaki soruları yanıtlayın. Verilen bağlam ilgili değilse veya soruyu yanıtlamanız için yeterli değilse, lütfen "Soruyu yanıtlamak için yeterli bilgiye sahip değilim" yanıtını verin.
+Lütfen yanıtınızı düzgün bir şekilde bitirmeye çalışın.
+Eğer her şeyi hatırlarsanız ve doğru yaparsanız size $1000 bahşiş vereceğim
+Kullanıcı Sorusu: {question}
+AI Yanıtı:
+"""
+
+rag_prompt_history_default_tr = """
+Bir belgeden bir bağlam ve kullanıcı ile sizin aranızdaki bir sohbet geçmişi verilir. Göreviniz, verilen bağlam ve sohbet geçmişi hakkında bir kullanıcının sorusunu yanıtlamaktır:
+---CHAT HISTORY---
+{chat_history}
+---END---
+
+---CONTEXT---
+{context}
+---END---
+Verilen bağlam, bilgi ve sohbet geçmişine dayanarak lütfen aşağıdaki soruları yanıtlayın. Verilen bağlam ilgili değilse veya soruyu yanıtlamanız için yeterli değilse, lütfen "Soruyu yanıtlamak için yeterli bilgiye sahip değilim" yanıtını verin.
+Lütfen yanıtınızı düzgün bir şekilde bitirmeye çalışın.
+Eğer her şeyi hatırlarsanız ve doğru yaparsanız size $1000 bahşiş vereceğim
+Kullanıcı Sorusu: {question}
+AI Yanıtı:
+"""

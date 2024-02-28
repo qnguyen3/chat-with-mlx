@@ -5,6 +5,7 @@ prompt_dict = {'en': [rag_prompt_default_en, rag_prompt_history_default_en],
                'vi': [rag_prompt_default_vi, rag_prompt_history_default_vi],
                'es': [rag_prompt_default_es, rag_prompt_history_default_es],
                'zh': [rag_prompt_default_zh, rag_prompt_history_default_zh],
+               'tr': [rag_prompt_default_tr, rag_prompt_history_default_tr],
                'multi': [rag_prompt_default_en, rag_prompt_history_default_en]
                }
 
@@ -30,5 +31,7 @@ def get_prompt(yaml_path, lang):
         return prompt_dict['es'], sys_prompt
     elif lang == 'Chinese':
         return prompt_dict['zh'], sys_prompt
+    elif lang == 'Turkish':
+        return prompt_dict['tr'], sys_prompt
     else:
         return prompt_dict['en'], sys_prompt
