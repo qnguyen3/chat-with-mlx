@@ -41,7 +41,8 @@ def model_info():
     yml_list = {}
     final_cfg_list = {}
     mlx_config_list = {}
-    yaml_files = get_yaml_files('chat_with_mlx/models/configs/')
+    directory_path = os.path.dirname(os.path.abspath(__file__))
+    yaml_files = get_yaml_files(f'{directory_path}/configs')
     for file in yaml_files:
         model_dict, yml_path, final_cfg, mlx_config = process_yaml(file)
         model_list.update(model_dict)
