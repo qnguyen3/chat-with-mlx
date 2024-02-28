@@ -1,5 +1,6 @@
-from ..models.utils import load_yaml_config
-from .rag_prompt import *
+from chat_with_mlx.models.utils import load_yaml_config
+from chat_with_mlx.rag.rag_prompt import rag_prompt_default_en, rag_prompt_default_vi, rag_prompt_default_es, rag_prompt_default_zh, rag_prompt_default_tr, rag_prompt_history_default_en, rag_prompt_history_default_vi, rag_prompt_history_default_es, rag_prompt_history_default_zh, rag_prompt_history_default_tr
+
 
 prompt_dict = {'en': [rag_prompt_default_en, rag_prompt_history_default_en],
                'vi': [rag_prompt_default_vi, rag_prompt_history_default_vi],

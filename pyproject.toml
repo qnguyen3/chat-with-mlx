@@ -1,0 +1,59 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "chat_with_mlx"
+version = "0.1.0"
+description = "A Retrieval-augmented Generation (RAG) chat interface with support for multiple open-source models, designed to run natively on MacOS and Apple Silicon with MLX."
+readme = "README.md"
+keywords = ["mlx","chat","chatbot","chat_with_mlx","chat_with_mlx"]
+authors = [ 
+    { name = "Quan Nguyen", email = "quanjenkey@gmail.com" },
+]
+
+license = {text = "MIT License"}
+
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: MacOS",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+requires-python = ">= 3.8"
+
+dependencies = [
+    "mlx-lm==0.0.12",
+    "gradio==4.19.1",
+    "tiktoken==0.6.0",
+    "openai==1.12.0",
+    "langchain==0.1.9",
+    "langchain-community==0.0.24",
+    "langchain-core==0.1.26",
+    "sentence-transformers==2.4.0",
+    "einops==0.7.0",
+    "chromadb==0.4.23",
+    "pypdf==4.0.2",
+    "youtube-transcript-api==0.6.2",
+    "sentencepiece==0.2.0",
+    "docx2txt==0.8"
+]
+
+[tool.setuptools]
+package-dir = {"chat_with_mlx" = "chat_with_mlx"}
+include-package-data = false
+license-files = ["LICENSE"]
+zip-safe = true
+
+[tool.setuptools.packages.find]
+include = ["chat_with_mlx*"]
+exclude = ["docs*", "tests*","third_party*","assets*"]
+
+[project.scripts]
+chat-with-mlx = "chat_with_mlx.app:main"
