@@ -114,3 +114,7 @@ I would like to send my many thanks to:
 - The Apple Machine Learning Research team for the amazing MLX library.
 - LangChain and ChromaDB for such easy RAG Implementation
 - People from Nous, VinBigData and Qwen team that helped me during the implementation.
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=qnguyen3/chat-with-mlx&type=Date)](https://star-history.com/#qnguyen3/chat-with-mlx&Date)
