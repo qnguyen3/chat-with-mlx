@@ -1,4 +1,12 @@
+<div align="center">
+
 # Native RAG on MacOS and Apple Silicon with MLX 🧑‍💻
+
+[![version](https://badge.fury.io/py/chat-with-mlx.svg)](https://badge.fury.io/py/chat-with-mlx)
+[![downloads](https://img.shields.io/pypi/dm/chat-with-mlx)](https://pypistats.org/packages/chat-with-mlx)
+[![license](https://img.shields.io/pypi/l/chat-with-mlx)](https://github.com/qnguyen3/chat-with-mlx/blob/main/LICENSE.md)
+[![python-version](https://img.shields.io/pypi/pyversions/chat-with-mlx)](https://badge.fury.io/py/chat-with-mlx)
+</div>
 
 This repository showcases a Retrieval-augmented Generation (RAG) chat interface with support for multiple open-source models.
 
@@ -13,6 +21,7 @@ This repository showcases a Retrieval-augmented Generation (RAG) chat interface 
 ## Installation and Usage
 
 ### Easy Setup
+
 - Install Pip
 - Install: `pip install chat-with-mlx`
 - Note: Setting up this way is really hard if you want to add your own model (which I will let you add later in the UI), but it is a fast way to test the app.
@@ -22,6 +31,8 @@ This repository showcases a Retrieval-augmented Generation (RAG) chat interface 
 ```bash
 git clone https://github.com/qnguyen3/chat-with-mlx.git
 cd chat-with-mlx
+python -m venv .venv
+source .venv/bin/activate
 pip install -e .
 ```
 
@@ -36,6 +47,7 @@ pip install -e .
 ```
 
 #### Usage
+
 - Start the app: `chat-with-mlx`
 
 ## Supported Models
