@@ -27,7 +27,7 @@ pip install -r requirements.txt
 - Mixtral-8x7B-Instruct-v0.1, Nous-Hermes-2-Mixtral-8x7B-DPO
 - Quyen-SE (0.5B), Quyen (4B)
 - StableLM 2 Zephyr (1.6B)
-- Vistral-7B-Chat, VBD-Llama2-50b-chat, vinallama-7b-chat
+- Vistral-7B-Chat, VBD-Llama2-7b-chat, vinallama-7b-chat
 
 
 ## Add Your Own Models
@@ -103,4 +103,6 @@ I would like to send my many thanks to:
 - LangChain and ChromaDB for such easy RAG Implementation
 - People from Nous, VinBigData and Qwen team that helped me during the implementation.
 
+## Star History
 
+[![Star History Chart](https://api.star-history.com/svg?repos=qnguyen3/chat-with-mlx&type=Date)](https://star-history.com/#qnguyen3/chat-with-mlx&Date)
