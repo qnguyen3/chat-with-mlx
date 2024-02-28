@@ -12,7 +12,12 @@ This repository showcases a Retrieval-augmented Generation (RAG) chat interface 
 
 ## Installation and Usage
 
-### Pip Installation
+### Easy Setup
+- Install Pip
+- Install: `pip install chat-with-mlx`
+- Note: Setting up this way is really hard if you want to add your own model (which I will let you add later in the UI), but it is a fast way to test the app.
+
+### Manual Pip Installation
 
 ```bash
 git clone https://github.com/qnguyen3/chat-with-mlx.git
@@ -20,7 +25,7 @@ cd chat-with-mlx
 pip install -e .
 ```
 
-### Conda Installation
+#### Manual Conda Installation
 
 ```bash
 git clone https://github.com/qnguyen3/chat-with-mlx.git
@@ -30,8 +35,7 @@ conda activate mlx-chat
 pip install -e .
 ```
 
-### Usage
-
+#### Usage
 - Start the app: `chat-with-mlx`
 
 ## Supported Models
