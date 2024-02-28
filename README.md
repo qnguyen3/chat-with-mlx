@@ -10,19 +10,29 @@ This repository showcases a Retrieval-augmented Generation (RAG) chat interface 
 - **Multilingual**: English🏴󠁧󠁢󠁥󠁮󠁧󠁿, Spanish🇪🇸, Chinese 🇨🇳, Vietnamese🇻🇳, and Turkish🇹🇷.
 - **Easy Integration**: Easy integrate any HuggingFace and MLX Compatible Open-Source Model.
 
-## How to Use
+## Installation and Usage
 
-- Install Conda and follow the following commands:
+### Pip Installation
+
+```bash
+git clone https://github.com/qnguyen3/chat-with-mlx.git
+cd chat-with-mlx
+pip install -e .
+```
+
+### Conda Installation
 
 ```bash
 git clone https://github.com/qnguyen3/chat-with-mlx.git
 cd chat-with-mlx
 conda create -n mlx-chat python=3.11
 conda activate mlx-chat
-pip install -r requirements.txt
+pip install -e .
 ```
 
-- Start the app: `python app.py`
+### Usage
+
+- Start the app: `chat-with-mlx`
 
 ## Supported Models
 
