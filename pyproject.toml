@@ -38,7 +38,7 @@ dependencies = [
     "langchain-core==0.1.27",
     "sentence-transformers==2.4.0",
     "einops==0.7.0",
-    "chromadb==0.4.23",
+    "chromadb==0.4.24",
     "pypdf==4.0.2",
     "youtube-transcript-api==0.6.2",
     "sentencepiece==0.2.0",
