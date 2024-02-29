@@ -233,19 +233,12 @@ with gr.Blocks(fill_height=True, theme=gr.themes.Soft()) as demo:
                     stop_index_button.click(kill_index, outputs=[index_status])
 
 
-def main(server_port):
-    demo.launch(inbrowser=True,server_port=server_port)
+def main():
+    demo.launch(inbrowser=True)
 
 if __name__ == "__main__":
     parser  = argparse.ArgumentParser(description="Chat with MLX \n"
                                     "Native RAG on MacOS and Apple Silicon with MLX 🧑‍💻")
-    parser.add_argument("--port", type=int, default=7680, 
-                        help="Port to run the server on")
     parser.add_argument("--version", action="version", 
                         version=f"Chat with MLX {__version__}")
-    args = parser.parse_args()
-    if args.port < 1024 or args.port > 65535:
-        print("Invalid port number. Port number should be between 1024 and 65535")
-        exit(1)
-
-    main(server_port=args.port)
+    main()
