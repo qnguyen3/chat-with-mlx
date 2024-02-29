@@ -13,9 +13,11 @@ from langchain_community.vectorstores import Chroma
 from langchain_community.document_loaders import PyPDFLoader, Docx2txtLoader, TextLoader
 from langchain_community.document_loaders import YoutubeLoader
 import os
+import argparse
+from chat_with_mlx import __version__
 
 os.environ['TOKENIZERS_PARALLELISM'] = "False"
-supported_lang = ['default', 'English', 'Spanish', 'Chinese', 'Vietnamese', 'Japanese', 'Korean', 'Indian', 'Turkish', 'German', 'French', "Italian"]
+SUPPORTED_LANG = ['default', 'English', 'Spanish', 'Chinese', 'Vietnamese', 'Japanese', 'Korean', 'Indian', 'Turkish', 'German', 'French', "Italian"]
 openai_api_base = "http://127.0.0.1:8080/v1"
 model_dicts, yml_path, cfg_list, mlx_config = model_info()
 model_list = list(cfg_list.keys())
@@ -26,10 +28,7 @@ vectorstore = None
 
 def load_model(model_name, lang):
     global process, rag_prompt, rag_his_prompt, sys_prompt, default_lang
-
     default_lang = 'default'
-
-
     prompts, sys_prompt = get_prompt(f'{yml_path[cfg_list[model_name]]}', lang)
     rag_prompt, rag_his_prompt = prompts[0], prompts[1]
     model_name_list = cfg_list[model_name].split('/')
@@ -51,7 +50,6 @@ def load_model(model_name, lang):
         return {model_status: f"Model Loaded"}
     except Exception as e:
         return {model_status: f"Exception occurred: {str(e)}"}
-
 
 def kill_process():
     global process
@@ -211,7 +209,7 @@ with gr.Blocks(fill_height=True, theme=gr.themes.Soft()) as demo:
     with gr.Row():
         with gr.Column(scale=2):
             model_name.render()
-            language = gr.Dropdown(label='Language', choices=sorted(supported_lang), value='default', interactive=True)
+            language = gr.Dropdown(label='Language', choices=sorted(SUPPORTED_LANG), value='default', interactive=True)
             btn1 = gr.Button("Load Model", variant='primary')
             btn3 = gr.Button("Unload Model", variant='stop')
         with gr.Column(scale=4):
@@ -235,9 +233,19 @@ with gr.Blocks(fill_height=True, theme=gr.themes.Soft()) as demo:
                     stop_index_button.click(kill_index, outputs=[index_status])
 
 
-def main():
-    demo.launch(inbrowser=True)
-
+def main(server_port):
+    demo.launch(inbrowser=True,server_port=server_port)
 
 if __name__ == "__main__":
-    main()
+    parser  = argparse.ArgumentParser(description="Chat with MLX \n"
+                                    "Native RAG on MacOS and Apple Silicon with MLX 🧑‍💻")
+    parser.add_argument("--port", type=int, default=7680, 
+                        help="Port to run the server on")
+    parser.add_argument("--version", action="version", 
+                        version=f"Chat with MLX {__version__}")
+    args = parser.parse_args()
+    if args.port < 1024 or args.port > 65535:
+        print("Invalid port number. Port number should be between 1024 and 65535")
+        exit(1)
+
+    main(server_port=args.port)
