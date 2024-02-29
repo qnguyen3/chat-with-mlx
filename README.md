@@ -15,7 +15,7 @@ This repository showcases a Retrieval-augmented Generation (RAG) chat interface 
 ## Features
 
 - **Chat with your Data**: `doc(x), pdf, txt` and YouTube video via URL.
-- **Multilingual**: Chinese 🇨🇳, English🏴, French🇫🇷, German🇩🇪, Indian🇮🇳, Italian🇮🇹, Japanese🇯🇵,Korean🇰🇷, Spanish🇪🇸, Turkish🇹🇷 and Vietnamese🇻🇳
+- **Multilingual**: Chinese 🇨🇳, English🏴, French🇫🇷, German🇩🇪, Hindi🇮🇳, Italian🇮🇹, Japanese🇯🇵,Korean🇰🇷, Spanish🇪🇸, Turkish🇹🇷 and Vietnamese🇻🇳
 - **Easy Integration**: Easy integrate any HuggingFace and MLX Compatible Open-Source Model.
 
 ## Installation and Usage
