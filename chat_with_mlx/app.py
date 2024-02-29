@@ -15,7 +15,7 @@ from langchain_community.document_loaders import YoutubeLoader
 import os
 
 os.environ['TOKENIZERS_PARALLELISM'] = "False"
-
+supported_lang = ['default', 'English', 'Spanish', 'Chinese', 'Vietnamese', 'Japanese', 'Korean', 'Indian', 'Turkish', 'German', 'French', "Italian"]
 openai_api_base = "http://127.0.0.1:8080/v1"
 model_dicts, yml_path, cfg_list, mlx_config = model_info()
 model_list = list(cfg_list.keys())
@@ -211,7 +211,7 @@ with gr.Blocks(fill_height=True, theme=gr.themes.Soft()) as demo:
     with gr.Row():
         with gr.Column(scale=2):
             model_name.render()
-            language = gr.Dropdown(label='Language', choices=['default', 'English', 'Spanish', 'Chinese', 'Vietnamese','Turkish'], value='default', interactive=True)
+            language = gr.Dropdown(label='Language', choices=sorted(supported_lang), value='default', interactive=True)
             btn1 = gr.Button("Load Model", variant='primary')
             btn3 = gr.Button("Unload Model", variant='stop')
         with gr.Column(scale=4):
