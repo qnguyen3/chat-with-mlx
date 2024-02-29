@@ -30,7 +30,7 @@ requires-python = ">= 3.8"
 
 dependencies = [
     "mlx-lm==0.0.13",
-    "gradio==4.19.1",
+    "gradio==4.19.2",
     "tiktoken==0.6.0",
     "openai==1.12.0",
     "langchain==0.1.9",
