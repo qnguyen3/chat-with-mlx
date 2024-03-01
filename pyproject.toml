@@ -36,7 +36,7 @@ dependencies = [
     "langchain==0.1.9",
     "langchain-community==0.0.24",
     "langchain-core==0.1.27",
-    "sentence-transformers==2.4.0",
+    "sentence-transformers==2.5.1",
     "einops==0.7.0",
     "chromadb==0.4.24",
     "pypdf==4.0.2",
