@@ -1,6 +1,6 @@
 <div align="center">
 
-# Native RAG on MacOS and Apple Silicon with MLX 🧑‍💻
+# Native RAG on Apple Sillicon Mac with MLX 🧑‍💻
 
 [![version](https://badge.fury.io/py/chat-with-mlx.svg)](https://badge.fury.io/py/chat-with-mlx)
 [![downloads](https://img.shields.io/pypi/dm/chat-with-mlx)](https://pypistats.org/packages/chat-with-mlx)
