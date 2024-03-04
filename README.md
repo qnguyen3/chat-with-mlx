@@ -88,7 +88,7 @@ A complete model should have the following files:
 - `config.json`
 - `merges.txt`
 - `model.safetensors.index.json`
-- `special_tokens_map.json` - this is optinal by model
+- `special_tokens_map.json` - this is optional by model
 - `tokenizer_config.json`
 - `tokenizer.json`
 - `vocab.json`
