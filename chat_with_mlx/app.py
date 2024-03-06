@@ -39,7 +39,7 @@ def load_model(model_name, lang):
         snapshot_download(repo_id=mlx_config[model_name], local_dir=local_model_dir)
     
     command = [
-        "python", "-m", "mlx_lm.server",
+        "python3", "-m", "mlx_lm.server",
         "--model", local_model_dir
     ]
     
