@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools"]
+requires = ["setuptools", "setuptools-scm"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -8,7 +8,7 @@ version = "0.1.11"
 description = "A Retrieval-augmented Generation (RAG) chat interface with support for multiple open-source models, designed to run natively on MacOS and Apple Silicon with MLX."
 readme = "README.md"
 keywords = ["mlx","chat","chatbot","chat_with_mlx","chat_with_mlx"]
-authors = [ 
+authors = [
     { name = "Quan Nguyen", email = "quanjenkey@gmail.com" },
 ]
 
@@ -44,6 +44,104 @@ dependencies = [
     "docx2txt==0.8"
 ]
 
+[project.optional-dependencies]
+dev = [
+    "pre-commit",
+    "ruff",
+    "build",
+    "twine",
+    "wheel",
+    "setuptools",
+    "tox",
+    "bandit",
+]
+
+
+[tool.isort]
+line_length = 88
+profile = "black"
+
+[tool.bandit]
+target = ["chat_with_mlx"]
+tests = ["B201", "B301", "B318", "B314", "B303", "B413", "B412", "B410"]
+
+[tool.autoflake]
+check = true
+imports = ["chat_with_mlx"]
+
+[tool.ruff]
+target-version = "py38"
+
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+    "yarn-error.log",
+    "yarn.lock",
+    "docs",
+]
+
+line-length = 88
+indent-width = 4
+
+[tool.ruff.lint]
+# Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
+select = ["E", "F"]
+ignore = []
+# Allow autofix for all enabled rules (when `--fix`) is provided.
+fixable = ["A", "B", "C", "D", "E", "F", "G", "I", "N", "Q", "S", "T", "W", "ANN", "ARG", "BLE", "COM", "DJ", "DTZ", "EM", "ERA", "EXE", "FBT", "ICN", "INP", "ISC", "NPY", "PD", "PGH", "PIE", "PL", "PT", "PTH", "PYI", "RET", "RSE", "RUF", "SIM", "SLF", "TCH", "TID", "TRY", "UP", "YTT"]
+unfixable = []
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+pylint.max-args = 20
+
+[tool.ruff.lint.flake8-quotes]
+inline-quotes = "double"
+multiline-quotes = "double"
+docstring-quotes = "double"
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["E402","F401"]
+
+[tool.ruff.lint.mccabe]
+# Flag errors (`C901`) whenever the complexity level exceeds 5.
+max-complexity = 20
+
+[tool.ruff.format]
+# Like Black, use double quotes for strings.
+quote-style = "double"
+
+# Like Black, indent with spaces, rather than tabs.
+indent-style = "space"
+
+# Like Black, respect magic trailing commas.
+skip-magic-trailing-comma = false
+
+# Like Black, automatically detect the appropriate line ending.
+line-ending = "auto"
+
 [tool.setuptools]
 package-dir = {"chat_with_mlx" = "chat_with_mlx"}
 include-package-data = true
@@ -55,4 +153,5 @@ include = ["chat_with_mlx*"]
 exclude = ["docs*", "tests*","third_party*","assets*", "chat_with_mlx/models/*"]
 
 [project.scripts]
+
 chat-with-mlx = "chat_with_mlx.app:main"
