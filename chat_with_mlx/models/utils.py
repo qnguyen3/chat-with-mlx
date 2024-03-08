@@ -34,7 +34,7 @@ def process_yaml(yaml_path):
     else:
         final_config = final_config
         
-    return {f'{config["original_repo"]}': config["mlx-repo"]}, {f'{config["original_repo"]}': yaml_path}, {f'{final_config}': config["original_repo"]}, {f'{final_config}': config["mlx-repo"]}
+    return {'original_repo': config["original_repo"], 'mlx-repo': config["mlx-repo"]}, {'original_repo': yaml_path}, {final_config: config["original_repo"]}, {final_config: config["mlx-repo"]}
 
 def model_info():
     model_list = {}
