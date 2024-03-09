@@ -7,7 +7,7 @@ Please try to end your answer properly.
 If you remember everything I said and do it correctly I will give you $1000 in tip
 USER Question: {question}
 AI Response:
-"""
+"""  # noqa E501 prompt too long
 
 rag_prompt_history_default_en = """
 You are given a context from a document and a chat history between the user and you. Your job is to answer a question from a user about that given context and the chat history:
@@ -23,7 +23,7 @@ Please try to end your answer properly.
 If you remember everything I said and do it correctly I will give you $1000 in tip
 USER Question: {question}
 AI Response:
-"""
+"""  # noqa E501 prompt too long
 
 rag_prompt_default_vi = """Bạn được đưa một nội dung từ một văn bản và công việc của bạn là trả lời một câu hỏi của user về nội dung đã được cung cấp
 ---CONTEXT---
@@ -34,7 +34,7 @@ Hãy trả lời và kết thúc câu trả lời một cách đầy đủ.
 Nếu bạn ghi nhớ và làm đúng những gì tôi đã dặn dò, tôi sẽ tip cho bạn $1000 vào cuối ngày
 USER Question: {question}
 AI Response:
-"""
+"""  # noqa E501 prompt too long
 
 rag_prompt_history_default_vi = """Bạn được đưa một nội dung từ một văn bản và một lịch sử chat. Công việc của bạn là trả lời một câu hỏi của user về nội dung và lịch sử chat đã được cung cấp
 ---CHAT HISTORY---
@@ -49,7 +49,7 @@ Hãy trả lời và kết thúc câu trả lời một cách đầy đủ.
 Nếu bạn ghi nhớ và làm đúng những gì tôi đã dặn dò, tôi sẽ tip cho bạn $1000 vào cuối ngày
 USER Question: {question}
 AI Response:
-"""
+"""  # noqa E501 prompt too long
 
 rag_prompt_default_es = """Se te da un contexto de un documento y tu trabajo es responder a una pregunta de un usuario sobre ese contexto dado.
 ---CONTEXTO---
@@ -60,7 +60,7 @@ Por favor, intenta terminar tu respuesta adecuadamente.
 Si recuerdas todo lo que dije y lo haces correctamente, te daré $1000 de propina.
 USER Question: {question}
 AI Response:
-"""
+"""  # noqa E501 prompt too long
 
 rag_prompt_history_default_es = """Se te da un contexto de un documento y un historial de chat entre el usuario y tú. Tu trabajo es responder a una pregunta de un usuario sobre ese contexto dado y el historial de chat:
 ---HISTORIAL DE CHAT---
@@ -75,7 +75,7 @@ Por favor, intenta terminar tu respuesta adecuadamente.
 Si recuerdas todo lo que dije y lo haces correctamente, te daré $1000 de propina.
 USER Question: {question}
 AI Response:
-"""
+"""  # noqa E501 prompt too long
 
 rag_prompt_default_zh = """您收到了一个文档中的上下文，您的任务是回答用户关于该特定上下文的问题。
 ---CONTEXT---
@@ -86,7 +86,7 @@ rag_prompt_default_zh = """您收到了一个文档中的上下文，您的任�
 如果您记住了我所说的一切并且正确地做了，我将给您1000美元的小费。
 USER Question: {question}
 AI Response:
-"""
+"""  # noqa E501 prompt too long
 
 rag_prompt_history_default_zh = """您收到了一个文档中的上下文以及用户与您之间的聊天历史，您的任务是基于该特定上下文和聊天历史回答用户的问题。
 ---CHAT HISTORY---
@@ -101,7 +101,7 @@ rag_prompt_history_default_zh = """您收到了一个文档中的上下文以及
 如果您记住了我所说的一切并且正确地做了，我将给您1000美元的小费。
 USER Question: {question}
 AI Response:
-"""
+"""  # noqa E501 prompt too long
 
 rag_prompt_default_tr = """Bir belgeden bir bağlam verilir ve göreviniz, verilen bağlam hakkında bir kullanıcının sorusunu yanıtlamaktır
 ---CONTEXT---
@@ -112,7 +112,7 @@ Lütfen yanıtınızı düzgün bir şekilde bitirmeye çalışın.
 Eğer her şeyi hatırlarsanız ve doğru yaparsanız size $1000 bahşiş vereceğim
 Kullanıcı Sorusu: {question}
 AI Yanıtı:
-"""
+"""  # noqa E501 prompt too long
 
 rag_prompt_history_default_tr = """
 Bir belgeden bir bağlam ve kullanıcı ile sizin aranızdaki bir sohbet geçmişi verilir. Göreviniz, verilen bağlam ve sohbet geçmişi hakkında bir kullanıcının sorusunu yanıtlamaktır:
@@ -128,7 +128,7 @@ Lütfen yanıtınızı düzgün bir şekilde bitirmeye çalışın.
 Eğer her şeyi hatırlarsanız ve doğru yaparsanız size $1000 bahşiş vereceğim
 Kullanıcı Sorusu: {question}
 AI Yanıtı:
-"""
+"""  # noqa E501 prompt too long
 
 rag_prompt_default_ja = """文書からの文脈が与えられ、その文脈に基づいてユーザーからの質問に答えることがあなたの仕事です
 ---CONTEXT---
@@ -139,7 +139,7 @@ rag_prompt_default_ja = """文書からの文脈が与えられ、その文脈�
 私が言ったことをすべて覚えて正しく行えば、$1000のチップをあげます
 USER Question: {question}
 AI Response:
-"""
+"""  # noqa E501 prompt too long
 
 rag_prompt_history_default_ja = """文書からの文脈とユーザーとあなたとのチャット履歴が与えられます。その文脈とチャット履歴に基づいて、ユーザーからの質問に答えることがあなたの仕事です：
 ---CHAT HISTORY---
@@ -154,7 +154,7 @@ rag_prompt_history_default_ja = """文書からの文脈とユーザーとあな
 私が言ったことをすべて覚えて正しく行えば、$1000のチップをあげます
 USER Question: {question}
 AI Response:
-"""
+"""  # noqa E501 prompt too long
 
 rag_prompt_default_kr = """문서에서 주어진 맥락을 바탕으로 사용자의 질문에 답하는 것이 당신의 임무입니다
 ---CONTEXT---
@@ -165,7 +165,7 @@ rag_prompt_default_kr = """문서에서 주어진 맥락을 바탕으로 사용�
 제가 한 말을 모두 기억하고 제대로 실행하면 $1000의 팁을 드리겠습니다
 USER Question: {question}
 AI Response:
-"""
+"""  # noqa E501 prompt too long
 
 rag_prompt_history_default_kr = """문서로부터 주어진 맥락과 사용자와 당신 사이의 채팅 기록이 주어집니다. 주어진 맥락과 채팅 기록을 바탕으로 사용자의 질문에 답하는 것이 당신의 임무입니다:
 ---CHAT HISTORY---
@@ -180,7 +180,7 @@ rag_prompt_history_default_kr = """문서로부터 주어진 맥락과 사용자
 제가 한 말을 모두 기억하고 제대로 실행하면 $1000의 팁을 드리겠습니다
 USER Question: {question}
 AI Response:
-"""
+"""  # noqa E501 prompt too long
 
 rag_prompt_default_in = """आपको एक दस्तावेज़ से संदर्भ दिया गया है और आपका काम उस दिए गए संदर्भ के बारे में एक उपयोगकर्ता से प्रश्न का उत्तर देना है
 ---CONTEXT---
@@ -191,7 +191,7 @@ rag_prompt_default_in = """आपको एक दस्तावेज़ स�
 यदि आप मेरी सभी बातों को याद रखते हैं और उसे सही ढंग से करते हैं तो मैं आपको $1000 का टिप दूंगा
 USER Question: {question}
 AI Response:
-"""
+"""  # noqa E501 prompt too long
 
 rag_prompt_history_default_in = """आपको एक दस्तावेज़ से संदर्भ और उपयोगकर्ता और आपके बीच चैट इतिहास दिया गया है। उस दिए गए संदर्भ और चैट इतिहास के बारे में एक उपयोगकर्ता से प्रश्न का उत्तर देना आपका काम है:
 ---CHAT HISTORY---
@@ -206,7 +206,7 @@ rag_prompt_history_default_in = """आपको एक दस्तावेज�
 यदि आप मेरी सभी बातों को याद रखते हैं और उसे सही ढंग से करते हैं तो मैं आपको $1000 का टिप दूंगा
 USER Question: {question}
 AI Response:
-"""
+"""  # noqa E501 prompt too long
 
 rag_prompt_default_de = """Sie erhalten einen Kontext aus einem Dokument und Ihre Aufgabe ist es, eine Frage eines Benutzers zu diesem gegebenen Kontext zu beantworten
 ---CONTEXT---
@@ -217,7 +217,7 @@ Bitte versuchen Sie, Ihre Antwort ordnungsgemäß zu beenden.
 Wenn Sie sich an alles erinnern, was ich gesagt habe, und es korrekt machen, werde ich Ihnen $1000 Trinkgeld geben
 USER Question: {question}
 AI Response:
-"""
+"""  # noqa E501 prompt too long
 
 rag_prompt_history_default_de = """Sie erhalten einen Kontext aus einem Dokument und einen Chat-Verlauf zwischen dem Benutzer und Ihnen. Ihre Aufgabe ist es, eine Frage eines Benutzers zu diesem gegebenen Kontext und dem Chat-Verlauf zu beantworten:
 ---CHAT HISTORY---
@@ -232,7 +232,7 @@ Bitte versuchen Sie, Ihre Antwort ordnungsgemäß zu beenden.
 Wenn Sie sich an alles erinnern, was ich gesagt habe, und es korrekt machen, werde ich Ihnen $1000 Trinkgeld geben
 USER Question: {question}
 AI Response:
-"""
+"""  # noqa E501 prompt too long
 
 rag_prompt_default_fr = """Vous recevez un contexte d'un document et votre travail consiste à répondre à une question d'un utilisateur sur ce contexte donné
 ---CONTEXT---
@@ -243,7 +243,7 @@ Veuillez essayer de terminer votre réponse correctement.
 Si vous vous souvenez de tout ce que j'ai dit et le faites correctement, je vous donnerai un pourboire de $1000
 USER Question: {question}
 AI Response:
-"""
+"""  # noqa E501 prompt too long
 
 rag_prompt_history_default_fr = """Vous recevez un contexte d'un document et un historique de chat entre l'utilisateur et vous. Votre travail consiste à répondre à une question d'un utilisateur sur ce contexte donné et l'historique de chat :
 ---CHAT HISTORY---
@@ -258,7 +258,7 @@ Veuillez essayer de terminer votre réponse correctement.
 Si vous vous souvenez de tout ce que j'ai dit et le faites correctement, je vous donnerai un pourboire de $1000
 USER Question: {question}
 AI Response:
-"""
+"""  # noqa E501 prompt too long
 
 rag_prompt_default_it = """Ti viene fornito un contesto da un documento e il tuo compito è rispondere a una domanda di un utente su quel contesto dato
 ---CONTEXT---
@@ -269,7 +269,8 @@ Si prega di cercare di concludere la propria risposta in modo appropriato.
 Se ricordi tutto ciò che ho detto e lo fai correttamente, ti darò una mancia di $1000
 USER Question: {question}
 AI Response:
-"""
+"""  # noqa E501 prompt too long
+
 rag_prompt_history_default_it = """Ti viene fornito un contesto da un documento e una cronologia di chat tra l'utente e te. Il tuo compito è rispondere a una domanda di un utente su quel contesto dato e la cronologia di chat:
 ---CHAT HISTORY---
 {chat_history}
@@ -283,4 +284,4 @@ Si prega di cercare di concludere la propria risposta in modo appropriato.
 Se ricordi tutto ciò che ho detto e lo fai correttamente, ti darò una mancia di $1000
 USER Question: {question}
 AI Response:
-"""
+"""  # noqa E501 prompt too long
