@@ -327,11 +327,13 @@ with gr.Blocks(fill_height=True, theme=gr.themes.Soft()) as demo:
                     stop_index_button.click(kill_index, outputs=[index_status])
 
 
+def app(port, share):
+    print(f"Starting MLX Chat on port {port}")
+    print(f"Sharing: {share}")
+    demo.launch(inbrowser=True, share=share, server_port=port)
+
+
 def main():
-    demo.launch(inbrowser=True)
-
-
-if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Chat with MLX \n"
         "Native RAG on MacOS and Apple Silicon with MLX 🧑‍💻"
@@ -339,4 +341,16 @@ if __name__ == "__main__":
     parser.add_argument(
         "--version", action="version", version=f"Chat with MLX {__version__}"
     )
-    main()
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=7860,
+        help="Port number to run the app",
+    )
+    parser.add_argument(
+        "--share",
+        default=False,
+        help="Enable sharing the app",
+    )
+    args = parser.parse_args()
+    app(port=args.port, share=args.share)
