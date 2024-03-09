@@ -28,7 +28,7 @@ classifiers = [
 requires-python = ">= 3.8"
 
 dependencies = [
-    "mlx-lm==0.0.13",
+    "mlx-lm==0.1.0",
     "gradio==4.19.2",
     "tiktoken==0.6.0",
     "openai==1.13.3",
