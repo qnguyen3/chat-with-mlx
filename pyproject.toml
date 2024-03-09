@@ -34,7 +34,7 @@ dependencies = [
     "openai==1.13.3",
     "langchain==0.1.9",
     "langchain-community==0.0.24",
-    "langchain-core==0.1.27",
+    "langchain-core==0.1.30",
     "sentence-transformers==2.5.1",
     "einops==0.7.0",
     "chromadb==0.4.24",
