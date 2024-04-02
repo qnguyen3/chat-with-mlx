@@ -31,7 +31,7 @@ dependencies = [
     "mlx-lm==0.4.0",
     "gradio==4.22.0",
     "tiktoken==0.6.0",
-    "openai==1.14.2",
+    "openai==1.16.0",
     "langchain==0.1.13",
     "langchain-community>=0.0.25",
     "langchain-core==0.1.33",
