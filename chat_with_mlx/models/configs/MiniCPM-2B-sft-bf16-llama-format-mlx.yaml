@@ -1,0 +1,4 @@
+original_repo: openbmb/MiniCPM-2B-sft-bf16-llama-format # The original HuggingFace Repo, this helps with displaying
+mlx-repo: mlx-community/MiniCPM-2B-sft-bf16-llama-format-mlx # The MLX models Repo, most are available through `mlx-community`
+quantize: 4bit # Optional: [4bit, 8bit]
+default_language: multi # Optional: [en, es, zh, vi, multi]
