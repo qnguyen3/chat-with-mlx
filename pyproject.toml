@@ -38,7 +38,7 @@ dependencies = [
     "sentence-transformers==2.6.1",
     "einops==0.7.0",
     "chromadb==0.4.24",
-    "pypdf==4.1.0",
+    "pypdf==4.2.0",
     "youtube-transcript-api==0.6.2",
     "sentencepiece==0.2.0",
     "docx2txt==0.8"
