@@ -1,0 +1,5 @@
+original_repo: microsoft/Phi-3-mini-128k-instruct
+mlx-repo: mlx-community/Phi-3-mini-128k-instruct-8bit
+quantize: 8bit
+default_language: multi
+system_prompt: ''

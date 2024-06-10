@@ -1,0 +1,5 @@
+original_repo: Qwen/Qwen2-1.5B-Instruct
+mlx-repo: Qwen/Qwen2-1.5B-Instruct-MLX
+quantize: 4bit
+default_language: multi
+system_prompt: You are a helpful assistant.

@@ -17,6 +17,18 @@ flags = {
     "multi": "🌍",
 }
 
+recommended_usage = """
+| Model Size/ RAM | 0.5B ~ 4B | 6B ~ 13B | 14B ~ 34B | 40B ~ 56B (8x7B) | 65B ~ 72B | 100B ~ 180B |
+|:---------------:|:---------:|:--------:|:---------:|:----------------:|:---------:|:-----------:|
+|       8GB       |    ✅/✅    |    ✅/❌   |    ❌/❌    |        ❌/❌       |    ❌/❌    |     ❌/❌     |
+|       18GB      |    ✅/✅    |    ✅/✅   |    ✅/❌    |        ❌/❌       |    ❌/❌    |     ❌/❌     |
+|       36GB      |    ✅/✅    |    ✅/✅   |    ✅/❌    |        ✅/❌       |    ❌/❌    |     ❌/❌     |
+|       48GB      |    ✅/✅    |    ✅/✅   |    ✅/✅    |        ✅/❌       |    ❌/❌    |     ❌/❌     |
+|       64GB      |    ✅/✅    |    ✅/✅   |    ✅/✅    |        ✅/✅       |    ✅/❌    |     ❌/❌     |
+|       96GB      |    ✅/✅    |    ✅/✅   |    ✅/✅    |        ✅/✅       |    ✅/❌    |     ✅/❌     |
+|      192GB      |    ✅/✅    |    ✅/✅   |    ✅/✅    |        ✅/✅       |    ✅/✅    |     ✅/❌     |
+"""
+
 
 def get_yaml_files(directory):
     yaml_files = []
@@ -43,11 +55,11 @@ def process_yaml(yaml_path):
         model_quant = config["quantize"]
 
     if model_lang != "" and model_quant != "":
-        final_config += f"- ({flags[model_lang]}, {model_quant})"
+        final_config += f" ({flags[model_lang]},{model_quant})"
     elif model_lang != "" and model_quant == "":
-        final_config += f"- ({flags[model_lang]})"
+        final_config += f" ({flags[model_lang]})"
     elif model_lang == "" and model_quant != "":
-        final_config += f"- ({model_quant})"
+        final_config += f" ({model_quant})"
     else:
         final_config = final_config
 

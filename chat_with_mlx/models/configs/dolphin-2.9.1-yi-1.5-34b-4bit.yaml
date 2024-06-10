@@ -1,0 +1,5 @@
+original_repo: cognitivecomputations/dolphin-2.9.1-yi-1.5-34b
+mlx-repo: mlx-community/dolphin-2.9.1-yi-1.5-34b-4bit
+quantize: 4bit
+default_language: multi
+system_prompt: You are a helpful assistant.

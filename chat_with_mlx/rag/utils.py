@@ -51,6 +51,7 @@ lang_dict = {
     "German": "de",
     "French": "fr",
     "Italian": "it",
+    "Multilingual": "multi",
 }
 
 

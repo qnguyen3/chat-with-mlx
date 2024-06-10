@@ -1,5 +1,0 @@
-original_repo: vilm/vinallama-7b-chat
-mlx-repo: ontocord/vinallama-7b-chat-mlx-4bit
-quantize: 4bit
-default_language: vi
-system_prompt: "Bạn là một trợ lí AI hữu ích. Hãy đưa ra câu trả lời đầy đủ và chính xác cho người dùng."

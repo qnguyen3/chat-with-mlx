@@ -1,0 +1,5 @@
+original_repo: NousResearch/Hermes-2-Pro-Llama-3-8B
+mlx-repo: mlx-community/Hermes-2-Pro-Llama-3-8B-4bit
+quantize: 4bit
+default_language: en
+system_prompt: You are a helpful assistant.

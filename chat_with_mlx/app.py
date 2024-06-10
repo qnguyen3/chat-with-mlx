@@ -1,7 +1,12 @@
 import argparse
 import os
-import subprocess
+import re
 import time
+from typing import Iterable, List, Tuple
+import json
+import yaml
+
+from mlx_lm import load, stream_generate, generate
 
 import gradio as gr
 from huggingface_hub import snapshot_download
@@ -15,10 +20,57 @@ from langchain_community.document_loaders import (
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import Chroma
 from openai import OpenAI
+from gradio.themes.base import Base
+from gradio.themes.utils import colors, fonts, sizes
 
 from chat_with_mlx import __version__
-from chat_with_mlx.models.utils import model_info
-from chat_with_mlx.rag.utils import get_prompt
+from chat_with_mlx.models.utils import model_info, flags, recommended_usage
+from chat_with_mlx.rag.utils import get_prompt, lang_dict
+
+css = """
+.message-row.bubble.user-row.svelte-gutj6d {
+  background-color: #007aff;
+  color: #fff;
+  border-radius: 50px;
+  max-width: 80%;
+  align-self: flex-end;
+}
+
+.message.user.svelte-gutj6d.message-fit.message-bubble-border {
+  background-color: #007aff;
+  padding: 5px 15px 5px 20px;
+  border: 1px solid #007aff;
+  border-radius: 35px 35px 0px 35px;
+}
+
+.message-row.bubble.user-row.svelte-gutj6d .md.svelte-1k4ye9u.chatbot.prose p {
+  color: #fff;
+}
+
+.lg.primary.svelte-cmf5ev {
+  background-color: #007aff;
+  color: #fff;
+}
+
+.message-row.bubble.bot-row.svelte-gutj6d {
+  color: #fff;
+  border-radius: 50px;
+  max-width: 80%;
+  align-self: flex-start;
+}
+
+.message.bot.svelte-gutj6d.message-fit.message-bubble-border {
+  background-color: #e9e9eb;
+  padding: 5px 15px 5px 20px;
+  border: 1px solid #e9e9eb;
+  border-radius: 35px 35px 35px 0px;
+}
+
+.message-row.bubble.bot-row.svelte-gutj6d .md.svelte-1k4ye9u.chatbot.prose p {
+  color: #000000;
+}
+"""
+
 
 os.environ["TOKENIZERS_PARALLELISM"] = "False"
 SUPPORTED_LANG = [
@@ -45,10 +97,48 @@ emb = HuggingFaceEmbeddings(
     model_kwargs={"trust_remote_code": True},
 )
 vectorstore = None
+model_load_status = False
+prev_model = ""
+
+class GusStyle(Base):
+    def __init__(
+        self,
+        *,
+        primary_hue: colors.Color | str = colors.indigo, #colors.Color(c50="#e0f2ff",c100="#b3e5fc",c200="#81d4fa",c300="#4fc3f7",c400="#29b6f6",c500="#03a9f4",c600="#039be5",c700="#0288d1",c800="#0277bd",c900="#01579b",c950="#004f73",),
+        secondary_hue: colors.Color | str = colors.blue,
+        neutral_hue: colors.Color | str = colors.gray,
+        spacing_size: sizes.Size | str = sizes.spacing_md,
+        radius_size: sizes.Size | str = sizes.radius_md,
+        text_size: sizes.Size | str = sizes.text_lg,
+        font: fonts.Font
+        | str
+        | Iterable[fonts.Font | str] = (
+            fonts.GoogleFont("Quicksand"),
+            "ui-sans-serif",
+            "sans-serif",
+        ),
+        font_mono: fonts.Font
+        | str
+        | Iterable[fonts.Font | str] = (
+            fonts.GoogleFont("IBM Plex Mono"),
+            "ui-monospace",
+            "monospace",
+        ),
+    ):
+        super().__init__(
+            primary_hue=primary_hue,
+            secondary_hue=secondary_hue,
+            neutral_hue=neutral_hue,
+            spacing_size=spacing_size,
+            radius_size=radius_size,
+            text_size=text_size,
+            font=font,
+            font_mono=font_mono,
+        )
 
 
 def load_model(model_name, lang):
-    global process, rag_prompt, rag_his_prompt, sys_prompt, default_lang
+    global process, rag_prompt, rag_his_prompt, sys_prompt, default_lang, model_load_status, local_model_dir, directory_path, cfg_list, prev_model
     default_lang = "default"
     prompts, sys_prompt = get_prompt(f"{yml_path[cfg_list[model_name]]}", lang)
     rag_prompt, rag_his_prompt = prompts[0], prompts[1]
@@ -57,32 +147,42 @@ def load_model(model_name, lang):
     local_model_dir = os.path.join(
         directory_path, "models", "download", model_name_list[1]
     )
-
     if not os.path.exists(local_model_dir):
         snapshot_download(repo_id=mlx_config[model_name], local_dir=local_model_dir)
 
-    command = ["python3", "-m", "mlx_lm.server", "--model", local_model_dir]
+    global model, tokenizer
+    with open(f"{local_model_dir}/tokenizer_config.json", "r") as f:
+        tokenizer_config_ = json.load(f)
 
+    # command = ["python3", "-m", "mlx_lm.server", "--model", local_model_dir]
+    if model_load_status is True:
+        del model, tokenizer
+        print(f"Model {prev_model} Killed")
+        time.sleep(2)
+    
+    # print(f"EOS: {tokenizer_config_['eos_token']}")
+    if 'phi-3' in model_name.lower():
+        tokenizer_config = {"trust_remote_code": True, "eos_token": '<|end|>'}
+    else:
+        tokenizer_config = {"trust_remote_code": True, "eos_token": tokenizer_config_['eos_token']}
     try:
-        process = subprocess.Popen(
-            command, stdin=subprocess.PIPE, stderr=subprocess.PIPE, text=True
-        )
-        process.stdin.write("y\n")
-        process.stdin.flush()
-        return {model_status: "Model Loaded"}
+        model, tokenizer = load(local_model_dir, tokenizer_config)
+        model_load_status = True
+        prev_model = model_name
+        return f"Model {model_name} Loaded", sys_prompt
     except Exception as e:
-        return {model_status: f"Exception occurred: {str(e)}"}
+        return "Exception occurred: {str(e)}"
 
 
-def kill_process():
-    global process
-    process.terminate()
-    time.sleep(2)
-    if process.poll() is None:  # Check if the process has indeed terminated
-        process.kill()  # Force kill if still running
+# def kill_process():
+#     global process
+#     process.terminate()
+#     time.sleep(2)
+#     if process.poll() is None:  # Check if the process has indeed terminated
+#         process.kill()  # Force kill if still running
 
-    print("Model Killed")
-    return {model_status: "Model Unloaded"}
+#     print("Model Killed")
+#     return {model_status: "Model Unloaded"}
 
 
 def check_file_type(file_path):
@@ -153,13 +253,15 @@ def build_rag_context(docs):
     return context
 
 
-def chatbot(query, history, temp, max_tokens, freq_penalty, k_docs):
-    global chat_history, sys_prompt
+def chatbot(query, history, temp, max_tokens, repetition_penalty, k_docs, top_p, system_prompt, model_name):
+    global chat_history, sys_prompt, local_model_dir, model, tokenizer
 
     if "vectorstore" in globals() and vectorstore is not None:
         if len(history) == 0:
             chat_history = []
-            if sys_prompt is not None:
+            if system_prompt != '':
+                chat_history.append({"role": "system", "content": system_prompt})
+            elif system_prompt == '' and sys_prompt is not None:
                 chat_history.append({"role": "system", "content": sys_prompt})
             docs = vectorstore.similarity_search(query, k=k_docs)
         else:
@@ -168,7 +270,9 @@ def chatbot(query, history, temp, max_tokens, freq_penalty, k_docs):
                 history_str += f"User: {message[0]}\n"
                 history_str += f"AI: {message[1]}\n"
 
-            if sys_prompt is not None:
+            if system_prompt != '':
+                chat_history.append({"role": "system", "content": system_prompt})
+            elif system_prompt == '' and sys_prompt is not None:
                 chat_history.append({"role": "system", "content": sys_prompt})
             chat_history.append({"role": "user", "content": history_str})
             docs = vectorstore.similarity_search(history_str)
@@ -185,136 +289,200 @@ def chatbot(query, history, temp, max_tokens, freq_penalty, k_docs):
     else:
         if len(history) == 0:
             chat_history = []
-            if sys_prompt is not None:
+            if system_prompt != '':
+                chat_history.append({"role": "system", "content": system_prompt})
+            elif system_prompt == '' and sys_prompt is not None:
                 chat_history.append({"role": "system", "content": sys_prompt})
         else:
             chat_history = []
-            if sys_prompt is not None:
+            if system_prompt != '':
+                chat_history.append({"role": "system", "content": system_prompt})
+            elif system_prompt == '' and sys_prompt is not None:
                 chat_history.append({"role": "system", "content": sys_prompt})
             for i, message in enumerate(history):
                 chat_history.append({"role": "user", "content": message[0]})
                 chat_history.append({"role": "assistant", "content": message[1]})
         chat_history.append({"role": "user", "content": query})
         messages = chat_history
+    if messages[0]['role'] == 'system' and messages[0]['content'] == '':
+        messages = messages[1:]
+    prompt = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
 
     # Uncomment for debugging
     # print(messages)
 
-    response = client.chat.completions.create(
-        model="gpt",
-        messages=messages,
-        temperature=temp,
-        frequency_penalty=freq_penalty,
-        max_tokens=max_tokens,
-        stream=True,
-    )
-    stop = ["<|im_end|>", "<|endoftext|>"]
+    if 'phi' in model_name.lower():
+        response = stream_generate(model, tokenizer, prompt, max_tokens=max_tokens)
+    else:
+        response = stream_generate(model, tokenizer, prompt, temp=temp, max_tokens=max_tokens, repetition_penalty=repetition_penalty, top_p=top_p,)
+    stop = [tokenizer.eos_token]
     partial_message = ""
     for chunk in response:
-        if len(chunk.choices) != 0:
-            if chunk.choices[0].delta.content not in stop:
-                partial_message = partial_message + chunk.choices[0].delta.content
+        if chunk not in stop:
+            partial_message = partial_message + chunk
+        yield partial_message
+
+
+
+def completions(prompt, temp, max_tokens, repetition_penalty, top_p, stop_sequence, model_name):
+    global model, tokenizer
+    partial_message = prompt
+    prompt_tokens_len = len(tokenizer.encode(prompt))
+    stops = [stop.strip() for stop in stop_sequence.split(',')]
+
+    if 'phi' in model_name.lower():
+        partial_message = partial_message + ' '
+        response = generate(model, tokenizer, prompt, max_tokens=max_tokens, verbose=False)
+        response_split = re.findall(r'\S+|\s|[^\w\s]', response)
+        output_tokens_cnt = len(tokenizer.encode(response))
+        output_tokens = f'Input Tokens: {prompt_tokens_len}, Output Tokens: {output_tokens_cnt}, Total Tokens: {prompt_tokens_len + output_tokens_cnt}'
+        new_msg = ''
+        for word in response_split:
+            new_msg = new_msg + word
+            partial_message = partial_message + word
+            stop_found = False 
+            for stop in stops:
+                if stop in new_msg:
+                    stop_found = True
+                    break
+            if stops != [''] and stop_found:
+                yield partial_message, output_tokens
+                break
+
+            yield partial_message, output_tokens
+    else:
+        response = stream_generate(model, tokenizer, prompt, temp=temp, max_tokens=max_tokens, repetition_penalty=repetition_penalty, top_p=top_p,)
+        output_tokens_cnt = 0
+        new_msg = ""
+
+        for chunk in response:
+            if chunk == tokenizer.eos_token:
+                break
             else:
-                partial_message = partial_message + ""
-            yield partial_message
+                output_tokens_cnt += 1
+                new_msg = new_msg + chunk
+                partial_message = partial_message + chunk
+                output_tokens = f'Input Tokens: {prompt_tokens_len}, Output Tokens: {output_tokens_cnt}, Total Tokens: {prompt_tokens_len + output_tokens_cnt}'
+                # Check for stop sequences
+                stop_found = False
+                for stop in stops:
+                    if stop in new_msg:
+                        stop_found = True
+                        break
+                
+                if stops != [''] and stop_found:
+                    yield partial_message, output_tokens
+                    break
+
+                
+            yield partial_message, output_tokens
 
 
-with gr.Blocks(fill_height=True, theme=gr.themes.Soft()) as demo:
-    model_name = gr.Dropdown(
-        label="Model",
-        info="Select your model",
-        choices=sorted(model_list),
-        interactive=True,
-        render=False,
+
+
+def add_model(original_repo, mlx_repo, quantization, lang, system_prompt, available_models):
+
+    global local_model_dir, model_dicts, yml_path, cfg_list, mlx_config
+
+    directory_path = os.path.dirname(os.path.abspath(__file__))
+
+    local_config_dir = os.path.join(
+        directory_path, "models", "configs"
     )
-    temp_slider = gr.State(0.2)
-    max_gen_token = gr.State(512)
-    freq_penalty = gr.State(1.05)
-    retrieve_docs = gr.State(3)
-    language = gr.State("default")
-    gr.ChatInterface(
-        chatbot=gr.Chatbot(height=600, render=False),
-        fn=chatbot,  # Function to call on user input
-        title="Chat with MLX🍎",  # Title of the web page
-        description="Chat with your data using Apple MLX Backend",  # Description
-        additional_inputs=[temp_slider, max_gen_token, freq_penalty, retrieve_docs],
-    )
-    with gr.Accordion("Advanced Setting", open=False):
+    repo_name = original_repo.split("/")[0]
+    model_name = original_repo.split("/")[-1]
+    if quantization != 'none':
+        new_model_dict = {
+            'original_repo': original_repo,
+            'mlx-repo': mlx_repo,
+            'quantize': quantization,
+            'default_language': lang_dict[lang],
+            'system_prompt': system_prompt
+        }
+        model_name_str = f"{repo_name}/{model_name}-{flags[lang_dict[lang]],quantization}"
+        model_configs_name = os.path.join(local_config_dir, f"{model_name}-{quantization}.yaml")
+    else:
+        new_model_dict = {
+            'original_repo': original_repo,
+            'mlx-repo': mlx_repo,
+            'default_language': lang_dict[lang],
+            'system_prompt': system_prompt
+        }
+        if new_model_dict['system_prompt'] == '':
+            del new_model_dict['system_prompt']
+        model_name_str = f"{model_name}-{flags[lang_dict[lang]]}"
+        model_configs_name = os.path.join(local_config_dir, f"{model_name}.yaml")
+    
+    available_models.append([model_name_str])
+    
+    with open(model_configs_name, 'w') as file:
+        yaml.dump(new_model_dict, file, allow_unicode=True, sort_keys=False)
+    model_dicts, yml_path, cfg_list, mlx_config = model_info()
+    print(f"YAML file generated successfully for {original_repo}.")
+
+    return f"Status: Model {original_repo} added. Please restart the program to see the added model.", available_models
+
+def reset_sys_prompt():
+    global sys_prompt
+    if sys_prompt is not None:
+        return sys_prompt
+    else:
+        return ''
+
+with gr.Blocks(fill_height=True, theme=GusStyle(), css=css) as demo:
+    title = gr.HTML("<h1>🍎 Chat with MLX </h1>")
+    with gr.Tab("Chat"):
         with gr.Row():
-            with gr.Column(scale=2):
-                temp_slider = gr.Slider(
-                    label="Temperature",
-                    value=0.2,
-                    minimum=0.0,
-                    maximum=1.0,
-                    step=0.05,
+            system_prompt = gr.Textbox(placeholder="System prompt (blank will use model's default system prompt)", label="System Prompt", interactive=True, render=False, scale=9)
+            with gr.Column(scale=1):
+                with gr.Row():
+                    config_text = gr.Markdown('### Configuration', show_label=False)
+                
+                    
+                ## SELECT MODEL
+                model_name = gr.Dropdown(
+                    label="Select Model",
+                    choices=sorted(model_list),
+                    interactive=True,
+                    render=False,
+                )
+                model_name.render()
+                language = gr.Dropdown(
+                    label="Language",
+                    choices=sorted(SUPPORTED_LANG),
+                    value="default",
                     interactive=True,
                 )
-                max_gen_token = gr.Slider(
-                    label="Max Tokens",
-                    value=512,
-                    minimum=512,
-                    maximum=4096,
-                    step=256,
-                    interactive=True,
-                )
-            with gr.Column(scale=2):
-                freq_penalty = gr.Slider(
-                    label="Frequency Penalty",
-                    value=1.05,
-                    minimum=-2,
-                    maximum=2,
-                    step=0.05,
-                    interactive=True,
-                )
-                retrieve_docs = gr.Slider(
-                    label="No. Retrieval Docs",
-                    value=3,
-                    minimum=1,
-                    maximum=10,
-                    step=1,
-                    interactive=True,
-                )
-
-    with gr.Row():
-        with gr.Column(scale=2):
-            model_name.render()
-            language = gr.Dropdown(
-                label="Language",
-                choices=sorted(SUPPORTED_LANG),
-                value="default",
-                interactive=True,
-            )
-            btn1 = gr.Button("Load Model", variant="primary")
-            btn3 = gr.Button("Unload Model", variant="stop")
-        with gr.Column(scale=4):
-            with gr.Row():
-                with gr.Column(scale=9):
+                model_status = gr.Textbox("Model Not Loaded", label="Model Status")
+                btn1 = gr.Button("Load Model", variant="primary")
+                
+                # btn3 = gr.Button("Unload Model", variant="stop")
+                with gr.Accordion("RAG Setting", open=False):
+                    # FILE
                     mode = gr.Dropdown(
-                        label="Dataset",
+                        label="Dataset Type",
                         info="Choose your dataset type",
                         choices=["Files (docx, pdf, txt)", "YouTube (url)"],
                         scale=5,
                     )
                     url = gr.Textbox(
                         label="URL",
-                        info="Enter your filepath (URL for Youtube)",
+                        placeholder="Enter your filepath (URL for Youtube)",
                         interactive=True,
                     )
                     upload_button = gr.UploadButton(
-                        label="Upload File", variant="primary"
+                        label="Upload File", variant="secondary",
                     )
-
-                # data = gr.Textbox(visible=lambda mode: mode == 'YouTube')
-                with gr.Column(scale=1):
-                    model_status = gr.Textbox("Model Not Loaded", label="Model Status")
+                    # MODEL STATUS
+                    # data = gr.Textbox(visible=lambda mode: mode == 'YouTube')
+                    
                     index_status = gr.Textbox("Not Index", label="Index Status")
                     btn1.click(
                         load_model,
                         inputs=[model_name, language],
-                        outputs=[model_status],
+                        outputs=[model_status, system_prompt],
                     )
-                    btn3.click(kill_process, outputs=[model_status])
+                    # btn3.click(kill_process, outputs=[model_status])
                     upload_button.upload(
                         upload, inputs=upload_button, outputs=[url, index_status]
                     )
@@ -325,7 +493,171 @@ with gr.Blocks(fill_height=True, theme=gr.themes.Soft()) as demo:
                     )
                     stop_index_button = gr.Button("Stop Indexing")
                     stop_index_button.click(kill_index, outputs=[index_status])
+                    retrieve_docs = gr.Slider(
+                                label="No. Retrieval Docs",
+                                value=3,
+                                minimum=1,
+                                maximum=10,
+                                step=1,
+                                interactive=True,
+                            )
 
+
+                with gr.Accordion("Advanced Setting", open=False):
+                    with gr.Row():
+                        with gr.Column(scale=1):
+                            
+                            temp_slider = gr.Slider(
+                                label="Temperature",
+                                value=0.2,
+                                minimum=0.0,
+                                maximum=1.0,
+                                step=0.05,
+                                interactive=True,
+                            )
+
+                            max_gen_token = gr.Slider(
+                                label="Max Tokens",
+                                value=1024,
+                                minimum=128,
+                                maximum=32768,
+                                step=256,
+                                interactive=True,
+                            )
+
+                            rep_penalty = gr.Slider(
+                                label="Repetition Penalty",
+                                value=1.05,
+                                minimum=1.05,
+                                maximum=5,
+                                step=0.05,
+                                interactive=True,
+                            )
+
+                            top_p = gr.Slider(
+                                label="top-p",
+                                value=0.9,
+                                minimum=0.1,
+                                maximum=0.99,
+                                step=0.01,
+                                interactive=True,
+                            )
+            with gr.Column(scale=4):
+                with gr.Row():
+                    system_prompt.render()
+                    default_prompt_btn = gr.Button("Default Prompt", variant="secondary", scale=1)
+                    default_prompt_btn.click(reset_sys_prompt, outputs=[system_prompt])
+
+                gr.ChatInterface(
+                    chatbot=gr.Chatbot(height=700, render=False, layout="bubble", bubble_full_width=False),
+                    fn=chatbot,  # Function to call on user input
+                    title=None,  # Title of the web page
+                    submit_btn='↑',
+                    retry_btn='Retry',
+                    undo_btn='Undo',
+                    clear_btn='Clear',
+                    additional_inputs=[temp_slider, max_gen_token, rep_penalty, retrieve_docs, top_p, system_prompt, model_name],
+                ) 
+    with gr.Tab("Completion"):
+        with gr.Row():
+            temp_slider_completion = gr.State(0.2)
+            max_gen_token_completion = gr.State(512)
+            rep_penalty_completion = gr.State(1.05)
+            top_p_completion = gr.State(0.9)
+            language = gr.State("default")
+            playground = gr.Textbox(placeholder="Enter your text...",interactive=True, lines=28, scale=4, show_label=False, render=False)
+            total_token_completion = gr.Markdown("Input Tokens: 0, Output Tokens: 0, Total Tokens: 0", label="Total Token", show_label=False, render=False)
+            with gr.Column(scale=1):
+                with gr.Row():
+                    config_text = gr.Markdown('### Configuration', show_label=False)
+                
+                    
+                ## SELECT MODEL
+                model_name_com = gr.Dropdown(
+                    label="Select Model",
+                    choices=sorted(model_list),
+                    interactive=True,
+                    render=False,
+                )
+                model_name_com.render()
+                model_status_com = gr.Textbox("Model Not Loaded", label="Model Status")
+                btn1 = gr.Button("Load Model", variant="primary")
+                btn1.click(
+                    load_model,
+                    inputs=[model_name_com, language],
+                    outputs=[model_status_com, system_prompt],
+                )
+
+                stop_sequence_completion = gr.Textbox(
+                    placeholder="Stop sequence...seperate by ,",
+                    label='Stop Sequences', 
+                    interactive=True, 
+                    lines=1, 
+                    show_label=False
+                )
+
+                temp_slider_completion = gr.Slider(
+                    label="Temperature",
+                    value=0.2,
+                    minimum=0.0,
+                    maximum=1.0,
+                    step=0.05,
+                    interactive=True,
+                )
+                max_gen_token_completion = gr.Slider(
+                    label="Max Tokens",
+                    value=1024,
+                    minimum=128,
+                    maximum=32768,
+                    step=256,
+                    interactive=True,
+                )
+                rep_penalty_completion = gr.Slider(
+                    label="Repetition Penalty",
+                    value=1.05,
+                    minimum=1.05,
+                    maximum=5,
+                    step=0.05,
+                    interactive=True,
+                )
+                top_p_completion = gr.Slider(
+                    label="top-p",
+                    value=0.9,
+                    minimum=0.1,
+                    maximum=0.99,
+                    step=0.01,
+                    interactive=True,
+                )
+
+                submit_completion = gr.Button("Submit", variant="primary")
+                submit_completion.click(completions, inputs=[playground, temp_slider_completion, max_gen_token_completion, rep_penalty_completion, top_p_completion, stop_sequence_completion, model_name_com], outputs=[playground, total_token_completion])
+            with gr.Column(scale=4):
+                playground.render()
+                total_token_completion.render()
+    with gr.Tab("Model Manager"):
+        with gr.Row():
+            with gr.Column(scale=3):
+                model_choices = gr.State(sorted(model_list))
+                available_list = [[model] for model in model_list]
+                available_list_state = gr.State(available_list)
+                available_models = gr.DataFrame(headers=['Available Models'], value=available_list, scale=3, show_label=False, height=200)
+            with gr.Column(scale=2):
+                support_lang_list = sorted(SUPPORTED_LANG)[:-1]
+                support_lang_list.append('Multilingual')
+                gr.Markdown('## Add new model')
+                new_model_repo = gr.Textbox(info='Original Repo', show_label=False, placeholder="Original Repo (i.e teknium/OpenHermes-2.5)", interactive=True)
+                new_mlx_model_repo = gr.Textbox(info='MLX Repo', show_label=False, placeholder="MLX Repo (i.e mlx-community/OpenHermes-2.5-Mistral-7B)", interactive=True)
+                with gr.Row():
+                    quantization_mode = gr.Dropdown(label='Quantization Mode', choices=['none','4bit','8bit'], interactive=True, value='none')
+                    language_choices = gr.Dropdown(label="Default Language", choices=support_lang_list, value="English", interactive=True)
+                default_sys_prompt = gr.Textbox(info="Default System Prompt", show_label=False, placeholder="ex: You are a helpful assistant.", interactive=True)
+                add_model_button = gr.Button("Add Model", variant="primary")
+                add_model_status = gr.Markdown("Status: None")
+                add_model_button.click(add_model, inputs=[new_model_repo, new_mlx_model_repo, quantization_mode, language_choices, default_sys_prompt, available_list_state], outputs=[add_model_status, available_models])
+        with gr.Row():
+            with gr.Column():
+                gr.Markdown('### Recommended Usage')
+                size_md = gr.Markdown(recommended_usage)
 
 def app(port, share):
     print(f"Starting MLX Chat on port {port}")

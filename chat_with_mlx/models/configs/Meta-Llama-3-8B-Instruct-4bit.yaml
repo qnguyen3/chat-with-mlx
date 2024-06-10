@@ -1,0 +1,4 @@
+original_repo: meta-llama/Meta-Llama-3-8B-Instruct
+mlx-repo: mlx-community/Meta-Llama-3-8B-Instruct-4bit
+quantize: 4bit
+default_language: multi

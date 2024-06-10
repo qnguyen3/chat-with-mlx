@@ -1,0 +1,5 @@
+original_repo: 01-ai/Yi-1.5-9B-Chat
+mlx-repo: mlx-community/Yi-1.5-9B-Chat-4bit
+quantize: 4bit
+default_language: multi
+system_prompt: You are a helpful assistant.
