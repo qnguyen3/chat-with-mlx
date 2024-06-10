@@ -1,0 +1,5 @@
+original_repo: microsoft/Phi-3-small-8k-instruct
+mlx-repo: mlx-community/Phi-3-small-8k-instruct-AQ4_32
+quantize: 4bit
+default_language: multi
+system_prompt: ''

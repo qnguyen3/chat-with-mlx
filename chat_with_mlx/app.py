@@ -638,9 +638,9 @@ with gr.Blocks(fill_height=True, theme=GusStyle(), css=css) as demo:
         with gr.Row():
             with gr.Column(scale=3):
                 model_choices = gr.State(sorted(model_list))
-                available_list = [[model] for model in model_list]
+                available_list = [[model] for model in sorted(model_list)]
                 available_list_state = gr.State(available_list)
-                available_models = gr.DataFrame(headers=['Available Models'], value=available_list, scale=3, show_label=False, height=200)
+                available_models = gr.DataFrame(headers=['Available Models'], value=available_list, scale=3, show_label=False, height=500)
             with gr.Column(scale=2):
                 support_lang_list = sorted(SUPPORTED_LANG)[:-1]
                 support_lang_list.append('Multilingual')
