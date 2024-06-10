@@ -549,7 +549,7 @@ with gr.Blocks(fill_height=True, theme=GusStyle(), css=css) as demo:
                     default_prompt_btn.click(reset_sys_prompt, outputs=[system_prompt])
 
                 gr.ChatInterface(
-                    chatbot=gr.Chatbot(height=700, render=False, layout="bubble", bubble_full_width=False),
+                    chatbot=gr.Chatbot(height=562, render=False, layout="bubble", bubble_full_width=False),
                     fn=chatbot,  # Function to call on user input
                     title=None,  # Title of the web page
                     submit_btn='↑',
@@ -565,7 +565,7 @@ with gr.Blocks(fill_height=True, theme=GusStyle(), css=css) as demo:
             rep_penalty_completion = gr.State(1.05)
             top_p_completion = gr.State(0.9)
             language = gr.State("default")
-            playground = gr.Textbox(placeholder="Enter your text...",interactive=True, lines=28, scale=4, show_label=False, render=False)
+            playground = gr.Textbox(placeholder="Enter your text...",interactive=True, lines=31, scale=4, show_label=False, render=False)
             total_token_completion = gr.Markdown("Input Tokens: 0, Output Tokens: 0, Total Tokens: 0", label="Total Token", show_label=False, render=False)
             with gr.Column(scale=1):
                 with gr.Row():
@@ -631,7 +631,9 @@ with gr.Blocks(fill_height=True, theme=GusStyle(), css=css) as demo:
 
                 submit_completion = gr.Button("Submit", variant="primary")
                 submit_completion.click(completions, inputs=[playground, temp_slider_completion, max_gen_token_completion, rep_penalty_completion, top_p_completion, stop_sequence_completion, model_name_com], outputs=[playground, total_token_completion])
-            with gr.Column(scale=4):
+                clear_button = gr.Button("Clear Text", variant="secondary")
+                clear_button.click(lambda : "", outputs=[playground])
+            with gr.Column(scale=5):
                 playground.render()
                 total_token_completion.render()
     with gr.Tab("Model Manager"):
