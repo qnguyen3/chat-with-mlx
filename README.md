@@ -10,13 +10,14 @@
 
 This repository showcases a Retrieval-augmented Generation (RAG) chat interface with support for multiple open-source models.
 
-![chat_with_mlx](assets/chat-w-mlx.gif)
+![chat_with_mlx](assets/Logo.png)
 
 ## Features
 
-- **Chat with your Data**: `doc(x), pdf, txt` and YouTube video via URL.
-- **Multilingual**: Chinese 🇨🇳, English🏴, French🇫🇷, German🇩🇪, Hindi🇮🇳, Italian🇮🇹, Japanese🇯🇵,Korean🇰🇷, Spanish🇪🇸, Turkish🇹🇷 and Vietnamese🇻🇳
-- **Easy Integration**: Easy integrate any HuggingFace and MLX Compatible Open-Source Model.
+- **Privacy-enhanced AI**: Chat with your favourite models and data securely.
+- **MLX Playground**: Your all in one LLM Chat UI for Apple MLX
+- **Easy Integration**: Easy integrate any HuggingFace and MLX Compatible Open-Source Models.
+- **Default Models**: Llama-3, Phi-3, Yi, Qwen, Mistral, Codestral, Mixtral, StableLM (along with Dolphin and Hermes variants)
 
 ## Installation and Usage
 
@@ -50,57 +51,18 @@ pip install -e .
 
 - Start the app: `chat-with-mlx`
 
-## Supported Models
+## Add Your Model
 
-- Google Gemma-7b-it, Gemma-2b-it
-- Mistral-7B-Instruct, OpenHermes-2.5-Mistral-7B, NousHermes-2-Mistral-7B-DPO
-- Mixtral-8x7B-Instruct-v0.1, Nous-Hermes-2-Mixtral-8x7B-DPO
-- Quyen-SE (0.5B), Quyen (4B)
-- StableLM 2 Zephyr (1.6B)
-- Vistral-7B-Chat, VBD-Llama2-7b-chat, vinallama-7b-chat
-
-## Add Your Own Models
-
-### Solution 1
-
-This solution only requires you to add your own model with a simple .yaml config file in `chat_with_mlx/models/configs`
-
-`examlple.yaml`:
-
-```yaml
-original_repo: google/gemma-2b-it # The original HuggingFace Repo, this helps with displaying
-mlx-repo: mlx-community/quantized-gemma-2b-it # The MLX models Repo, most are available through `mlx-community`
-quantize: 4bit # Optional: [4bit, 8bit]
-default_language: multi # Optional: [en, es, zh, vi, multi]
-```
-
-After adding the .yaml config, you can go and load the model inside the app (for now you need to keep track the download through your Terminal/CLI)
-
-### Solution 2
-
-Do the same as Solution 1. Sometimes, the `download_snapshot` method that is used to download the models are slow, and you would like to download it by your own.
-
-After the adding the .yaml config, you can download the repo by yourself and add it to `chat_with_mlx/models/download`. The folder name MUST be the same as the orginal repo name without the username (so `google/gemma-2b-it` -> `gemma-2b-it`).
-
-A complete model should have the following files:
-
-- `model.safetensors`
-- `config.json`
-- `merges.txt`
-- `model.safetensors.index.json`
-- `special_tokens_map.json` - this is optional by model
-- `tokenizer_config.json`
-- `tokenizer.json`
-- `vocab.json`
+Please checkout the guide [HERE](ADD_MODEL.MD)
 
 ## Known Issues
 
-- You HAVE TO unload a model before loading in a new model. Otherwise, you would need to restart the app to use a new model, it would stuck at the old one.
 - When the model is downloading by Solution 1, the only way to stop it is to hit `control + C` on your Terminal.
 - If you want to switch the file, you have to manually hit STOP INDEXING. Otherwise, the vector database would add the second document to the current database.
 - You have to choose a dataset mode (Document or YouTube) in order for it to work.
+- **Phi-3-small** can't do streaming in completions
 
-## WHY MLX?
+## Why MLX?
 
 MLX is an array framework for machine learning research on Apple silicon,
 brought to you by Apple machine learning research.
@@ -139,7 +101,7 @@ I would like to send my many thanks to:
 
 - The Apple Machine Learning Research team for the amazing MLX library.
 - LangChain and ChromaDB for such easy RAG Implementation
-- People from Nous, VinBigData and Qwen team that helped me during the implementation.
+- All contributors
 
 ## Star History
 

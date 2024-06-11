@@ -1,0 +1,5 @@
+original_repo: cognitivecomputations/dolphin-2.9-llama3-8b
+mlx-repo: mlx-community/dolphin-2.9-llama3-8b-8bit-mlx
+quantize: 8bit
+default_language: en
+system_prompt: You are Dolphin, a helpful AI assistant.

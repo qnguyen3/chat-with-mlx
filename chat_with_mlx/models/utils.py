@@ -18,15 +18,22 @@ flags = {
 }
 
 recommended_usage = """
-| Model Size/ RAM | 0.5B ~ 4B | 6B ~ 13B | 14B ~ 34B | 40B ~ 56B (8x7B) | 65B ~ 72B | 100B ~ 180B |
-|:---------------:|:---------:|:--------:|:---------:|:----------------:|:---------:|:-----------:|
-|       8GB       |    ✅/✅    |    ✅/❌   |    ❌/❌    |        ❌/❌       |    ❌/❌    |     ❌/❌     |
-|       18GB      |    ✅/✅    |    ✅/✅   |    ✅/❌    |        ❌/❌       |    ❌/❌    |     ❌/❌     |
-|       36GB      |    ✅/✅    |    ✅/✅   |    ✅/❌    |        ✅/❌       |    ❌/❌    |     ❌/❌     |
-|       48GB      |    ✅/✅    |    ✅/✅   |    ✅/✅    |        ✅/❌       |    ❌/❌    |     ❌/❌     |
-|       64GB      |    ✅/✅    |    ✅/✅   |    ✅/✅    |        ✅/✅       |    ✅/❌    |     ❌/❌     |
-|       96GB      |    ✅/✅    |    ✅/✅   |    ✅/✅    |        ✅/✅       |    ✅/❌    |     ✅/❌     |
-|      192GB      |    ✅/✅    |    ✅/✅   |    ✅/✅    |        ✅/✅       |    ✅/✅    |     ✅/❌     |
+| Model Size/ RAM | 0.5B ~ 4B | 6B ~ 13B | 14B ~ 34B | 40B ~ 56B | 65B ~ 72B | 100B ~ 180B |
+|:---------------:|:---------:|:--------:|:---------:|:---------:|:---------:|:-----------:|
+|       8GB       |    ✅/✅    |    ✅/❌   |    ❌/❌    |    ❌/❌    |    ❌/❌    |     ❌/❌     |
+|       18GB      |    ✅/✅    |    ✅/✅   |    ✅/❌    |    ❌/❌    |    ❌/❌    |     ❌/❌     |
+|       36GB      |    ✅/✅    |    ✅/✅   |    ✅/❌    |    ✅/❌    |    ❌/❌    |     ❌/❌     |
+|       48GB      |    ✅/✅    |    ✅/✅   |    ✅/✅    |    ✅/❌    |    ❌/❌    |     ❌/❌     |
+|       64GB      |    ✅/✅    |    ✅/✅   |    ✅/✅    |    ✅/✅    |    ✅/❌    |     ❌/❌     |
+|       96GB      |    ✅/✅    |    ✅/✅   |    ✅/✅    |    ✅/✅    |    ✅/❌    |     ✅/❌     |
+|      192GB      |    ✅/✅    |    ✅/✅   |    ✅/✅    |    ✅/✅    |    ✅/✅    |     ✅/❌     |
+
+Note:
+✅ - Usable, ❌ - Not usable
+
+The table shows the usability of different model sizes with varying amounts of RAM. The left value in each cell represents the usability of 4-bit quantization, while the right value represents the usability of 8-bit quantization for the corresponding model size and RAM combination.
+
+For example, if you have a model size between 14B and 34B parameters and 48GB of RAM, you can use 4-bit quantization (✅), but 8-bit quantization is not usable (❌).
 """
 
 

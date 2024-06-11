@@ -1,0 +1,5 @@
+original_repo: microsoft/Phi-3-medium-4k-instruct
+mlx-repo: mlx-community/Phi-3-medium-4k-instruct-4bit
+quantize: 4bit
+default_language: multi
+system_prompt: ''

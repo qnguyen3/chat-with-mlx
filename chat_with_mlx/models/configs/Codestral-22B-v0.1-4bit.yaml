@@ -1,0 +1,5 @@
+original_repo: mistralai/Codestral-22B-v0.1
+mlx-repo: mlx-community/Codestral-22B-v0.1-4bit
+quantize: 4bit
+default_language: multi
+system_prompt: ''

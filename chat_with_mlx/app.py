@@ -5,6 +5,7 @@ import time
 from typing import Iterable, List, Tuple
 import json
 import yaml
+import signal
 
 from mlx_lm import load, stream_generate, generate
 
@@ -19,7 +20,6 @@ from langchain_community.document_loaders import (
 )
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import Chroma
-from openai import OpenAI
 from gradio.themes.base import Base
 from gradio.themes.utils import colors, fonts, sizes
 
@@ -45,10 +45,20 @@ css = """
 
 .message-row.bubble.user-row.svelte-gutj6d .md.svelte-1k4ye9u.chatbot.prose p {
   color: #fff;
+  font-size: 14px;
 }
 
 .lg.primary.svelte-cmf5ev {
   background-color: #007aff;
+  color: #fff;
+}
+
+#component-34 {
+  font-size: 16px;
+}
+
+.lg.stop.red-btn.svelte-cmf5ev {
+  background-color: #eb4034;
   color: #fff;
 }
 
@@ -68,6 +78,7 @@ css = """
 
 .message-row.bubble.bot-row.svelte-gutj6d .md.svelte-1k4ye9u.chatbot.prose p {
   color: #000000;
+  font-size: 14px;
 }
 """
 
@@ -87,15 +98,10 @@ SUPPORTED_LANG = [
     "French",
     "Italian",
 ]
-openai_api_base = "http://127.0.0.1:8080/v1"
 model_dicts, yml_path, cfg_list, mlx_config = model_info()
 model_list = list(cfg_list.keys())
-client = OpenAI(api_key="EMPTY", base_url=openai_api_base)
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=512, chunk_overlap=50)
-emb = HuggingFaceEmbeddings(
-    model_name="nomic-ai/nomic-embed-text-v1.5",
-    model_kwargs={"trust_remote_code": True},
-)
+emb = None
 vectorstore = None
 model_load_status = False
 prev_model = ""
@@ -113,7 +119,7 @@ class GusStyle(Base):
         font: fonts.Font
         | str
         | Iterable[fonts.Font | str] = (
-            fonts.GoogleFont("Quicksand"),
+            fonts.GoogleFont("Inter Tight"),
             "ui-sans-serif",
             "sans-serif",
         ),
@@ -136,6 +142,8 @@ class GusStyle(Base):
             font_mono=font_mono,
         )
 
+def terminate_process():
+    os.kill(os.getpid(), signal.SIGTERM)
 
 def load_model(model_name, lang):
     global process, rag_prompt, rag_his_prompt, sys_prompt, default_lang, model_load_status, local_model_dir, directory_path, cfg_list, prev_model
@@ -148,6 +156,7 @@ def load_model(model_name, lang):
         directory_path, "models", "download", model_name_list[1]
     )
     if not os.path.exists(local_model_dir):
+        gr.Info(f'Model {model_name} is downloading. Please check terminal to see the progress.')
         snapshot_download(repo_id=mlx_config[model_name], local_dir=local_model_dir)
 
     global model, tokenizer
@@ -162,7 +171,7 @@ def load_model(model_name, lang):
     
     # print(f"EOS: {tokenizer_config_['eos_token']}")
     if 'phi-3' in model_name.lower():
-        tokenizer_config = {"trust_remote_code": True, "eos_token": '<|end|>'}
+        tokenizer_config = {"trust_remote_code": True, "eos_token": "<|end|>"}
     else:
         tokenizer_config = {"trust_remote_code": True, "eos_token": tokenizer_config_['eos_token']}
     try:
@@ -172,17 +181,38 @@ def load_model(model_name, lang):
         return f"Model {model_name} Loaded", sys_prompt
     except Exception as e:
         return "Exception occurred: {str(e)}"
+    
+# def remove_model(model_name, models_list):
 
+#     global yml_path
 
-# def kill_process():
-#     global process
-#     process.terminate()
-#     time.sleep(2)
-#     if process.poll() is None:  # Check if the process has indeed terminated
-#         process.kill()  # Force kill if still running
+#     model_name_list = cfg_list[model_name].split("/")
+#     directory_path = os.path.dirname(os.path.abspath(__file__))
+#     local_model_dir = os.path.join(
+#         directory_path, "models", "download", model_name_list[1]
+#     )
+#     gr.Info(f'Model {model_name} remove!')
+#     models_list.remove(model_name)
 
-#     print("Model Killed")
-#     return {model_status: "Model Unloaded"}
+#     available_list = [[model] for model in sorted(models_list)]
+#     config_dir = os.path.join(
+#         directory_path, "models", "configs", model_name_list[1]
+#     )
+#     # print(model_name)
+#     if '4bit' in model_name:
+#         model_key = model_name_list[0] + '/' + model_name_list[1] + '-4bit'
+#     elif '8bit' in model_name:
+#         model_key = model_name_list[0] + '/' + model_name_list[1] + '-8bit'
+#     else:
+#         model_key = model_name_list[0] + '/' + model_name_list[1]
+#     yaml_path = yml_path[model_key]
+#     # if os.path.exists(yaml_path):
+#     #     os.remove(yaml_path)
+#     if os.path.exists(local_model_dir):
+#         shutil.rmtree(local_model_dir)
+
+#     return gr.Dropdown(choices=models_list, label='Choose model to delete'), available_list
+    
 
 
 def check_file_type(file_path):
@@ -214,7 +244,14 @@ def upload(files):
 
 
 def indexing(mode, url):
-    global vectorstore
+    global vectorstore, emb
+
+    if emb is None:
+        gr.Info("Loading embedding model (first time may take longer, check terminal to check download progress)")
+        emb = HuggingFaceEmbeddings(
+            model_name="Snowflake/snowflake-arctic-embed-m",
+            model_kwargs={"trust_remote_code": True},
+            )
 
     try:
         if mode == "Files (docx, pdf, txt)":
@@ -311,16 +348,18 @@ def chatbot(query, history, temp, max_tokens, repetition_penalty, k_docs, top_p,
     # Uncomment for debugging
     # print(messages)
 
-    if 'phi' in model_name.lower():
+    if 'phi-3-mini' in model_name.lower() or 'phi-3-small' in model_name.lower():
         response = stream_generate(model, tokenizer, prompt, max_tokens=max_tokens)
+        stop = ['<|end|>', tokenizer.eos_token]
     else:
         response = stream_generate(model, tokenizer, prompt, temp=temp, max_tokens=max_tokens, repetition_penalty=repetition_penalty, top_p=top_p,)
-    stop = [tokenizer.eos_token]
+        stop = [tokenizer.eos_token]
+    
     partial_message = ""
     for chunk in response:
         if chunk not in stop:
             partial_message = partial_message + chunk
-        yield partial_message
+            yield partial_message
 
 
 
@@ -330,7 +369,7 @@ def completions(prompt, temp, max_tokens, repetition_penalty, top_p, stop_sequen
     prompt_tokens_len = len(tokenizer.encode(prompt))
     stops = [stop.strip() for stop in stop_sequence.split(',')]
 
-    if 'phi' in model_name.lower():
+    if 'phi-3-mini' in model_name.lower():
         partial_message = partial_message + ' '
         response = generate(model, tokenizer, prompt, max_tokens=max_tokens, verbose=False)
         response_split = re.findall(r'\S+|\s|[^\w\s]', response)
@@ -413,14 +452,20 @@ def add_model(original_repo, mlx_repo, quantization, lang, system_prompt, availa
         model_name_str = f"{model_name}-{flags[lang_dict[lang]]}"
         model_configs_name = os.path.join(local_config_dir, f"{model_name}.yaml")
     
+    if os.path.exists(model_configs_name):
+        gr.Warning("Model is already existed.")
+        return f"Model is already existed. Please add an another model.", sorted(available_models)
+
+    
     available_models.append([model_name_str])
     
     with open(model_configs_name, 'w') as file:
         yaml.dump(new_model_dict, file, allow_unicode=True, sort_keys=False)
     model_dicts, yml_path, cfg_list, mlx_config = model_info()
     print(f"YAML file generated successfully for {original_repo}.")
+    gr.Info("Please restart the program to use the new model.")
 
-    return f"Status: Model {original_repo} added. Please restart the program to see the added model.", available_models
+    return f"Status: Model **{original_repo}** added. Please restart the program to see the added model.", sorted(available_models)
 
 def reset_sys_prompt():
     global sys_prompt
@@ -518,10 +563,10 @@ with gr.Blocks(fill_height=True, theme=GusStyle(), css=css) as demo:
 
                             max_gen_token = gr.Slider(
                                 label="Max Tokens",
-                                value=1024,
+                                value=512,
                                 minimum=128,
                                 maximum=32768,
-                                step=256,
+                                step=128,
                                 interactive=True,
                             )
 
@@ -549,7 +594,7 @@ with gr.Blocks(fill_height=True, theme=GusStyle(), css=css) as demo:
                     default_prompt_btn.click(reset_sys_prompt, outputs=[system_prompt])
 
                 gr.ChatInterface(
-                    chatbot=gr.Chatbot(height=700, render=False, layout="bubble", bubble_full_width=False),
+                    chatbot=gr.Chatbot(height=562, render=False, layout="bubble", bubble_full_width=False),
                     fn=chatbot,  # Function to call on user input
                     title=None,  # Title of the web page
                     submit_btn='↑',
@@ -565,7 +610,7 @@ with gr.Blocks(fill_height=True, theme=GusStyle(), css=css) as demo:
             rep_penalty_completion = gr.State(1.05)
             top_p_completion = gr.State(0.9)
             language = gr.State("default")
-            playground = gr.Textbox(placeholder="Enter your text...",interactive=True, lines=28, scale=4, show_label=False, render=False)
+            playground = gr.Textbox(placeholder="Enter your text...",interactive=True, lines=31, scale=4, show_label=False, render=False)
             total_token_completion = gr.Markdown("Input Tokens: 0, Output Tokens: 0, Total Tokens: 0", label="Total Token", show_label=False, render=False)
             with gr.Column(scale=1):
                 with gr.Row():
@@ -606,10 +651,10 @@ with gr.Blocks(fill_height=True, theme=GusStyle(), css=css) as demo:
                 )
                 max_gen_token_completion = gr.Slider(
                     label="Max Tokens",
-                    value=1024,
+                    value=512,
                     minimum=128,
                     maximum=32768,
-                    step=256,
+                    step=128,
                     interactive=True,
                 )
                 rep_penalty_completion = gr.Slider(
@@ -631,13 +676,17 @@ with gr.Blocks(fill_height=True, theme=GusStyle(), css=css) as demo:
 
                 submit_completion = gr.Button("Submit", variant="primary")
                 submit_completion.click(completions, inputs=[playground, temp_slider_completion, max_gen_token_completion, rep_penalty_completion, top_p_completion, stop_sequence_completion, model_name_com], outputs=[playground, total_token_completion])
-            with gr.Column(scale=4):
+                clear_button = gr.Button("Clear Text", variant="secondary")
+                clear_button.click(lambda : "", outputs=[playground])
+            with gr.Column(scale=5):
                 playground.render()
                 total_token_completion.render()
     with gr.Tab("Model Manager"):
         with gr.Row():
+            
             with gr.Column(scale=3):
-                model_choices = gr.State(sorted(model_list))
+                sorted_models = sorted(model_list)
+                model_choices = gr.State(sorted_models)
                 available_list = [[model] for model in sorted(model_list)]
                 available_list_state = gr.State(available_list)
                 available_models = gr.DataFrame(headers=['Available Models'], value=available_list, scale=3, show_label=False, height=500)
@@ -651,13 +700,24 @@ with gr.Blocks(fill_height=True, theme=GusStyle(), css=css) as demo:
                     quantization_mode = gr.Dropdown(label='Quantization Mode', choices=['none','4bit','8bit'], interactive=True, value='none')
                     language_choices = gr.Dropdown(label="Default Language", choices=support_lang_list, value="English", interactive=True)
                 default_sys_prompt = gr.Textbox(info="Default System Prompt", show_label=False, placeholder="ex: You are a helpful assistant.", interactive=True)
-                add_model_button = gr.Button("Add Model", variant="primary")
+                with gr.Row():
+                    add_model_button = gr.Button("Add Model", variant="primary", scale=5)
+                    quit_button = gr.Button("Quit", variant='stop', scale=2, elem_classes='red-btn')
+                    
                 add_model_status = gr.Markdown("Status: None")
                 add_model_button.click(add_model, inputs=[new_model_repo, new_mlx_model_repo, quantization_mode, language_choices, default_sys_prompt, available_list_state], outputs=[add_model_status, available_models])
+                quit_button.click(terminate_process, outputs=[add_model_status])
         with gr.Row():
-            with gr.Column():
+            with gr.Column(scale=3):
                 gr.Markdown('### Recommended Usage')
                 size_md = gr.Markdown(recommended_usage)
+            # with gr.Column(scale=2):
+            #     sorted_models = sorted(model_list)
+            #     sorted_models_rm = gr.State(sorted_models)
+            #     del_md = gr.Markdown('### Delete Model')
+            #     avail_model = gr.Dropdown(choices=sorted_models, label='Choose model to delete')
+            #     delete_model_btn = gr.Button("Delete Model", variant="stop", elem_classes='red-btn')
+            # delete_model_btn.click(remove_model, inputs=[avail_model, sorted_models_rm], outputs=[avail_model, available_models])
 
 def app(port, share):
     print(f"Starting MLX Chat on port {port}")
