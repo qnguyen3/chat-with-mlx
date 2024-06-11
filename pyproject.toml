@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "chat_with_mlx"
-version = "0.1.11"
+version = "0.2.0"
 description = "A Retrieval-augmented Generation (RAG) chat interface with support for multiple open-source models, designed to run natively on MacOS and Apple Silicon with MLX."
 readme = "README.md"
 keywords = ["mlx","chat","chatbot","chat_with_mlx","chat_with_mlx"]
