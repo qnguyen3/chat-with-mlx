@@ -1,6 +1,6 @@
 <div align="center">
 
-# Native RAG on Apple Sillicon Mac with MLX 🧑‍💻
+# Chat with MLX 🧑‍💻
 
 [![version](https://badge.fury.io/py/chat-with-mlx.svg)](https://badge.fury.io/py/chat-with-mlx)
 [![downloads](https://img.shields.io/pypi/dm/chat-with-mlx)](https://pypistats.org/packages/chat-with-mlx)
@@ -8,7 +8,7 @@
 [![python-version](https://img.shields.io/pypi/pyversions/chat-with-mlx)](https://badge.fury.io/py/chat-with-mlx)
 </div>
 
-This repository showcases a Retrieval-augmented Generation (RAG) chat interface with support for multiple open-source models.
+An all-in-one Chat Playground using Apple MLX on Apple Silicon Macs.
 
 ![chat_with_mlx](assets/Logo.png)
 
