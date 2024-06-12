@@ -25,7 +25,6 @@ An all-in-one Chat Playground using Apple MLX on Apple Silicon Macs.
 
 - Install Pip
 - Install: `pip install chat-with-mlx`
-- Note: Setting up this way is really hard if you want to add your own model (which I will let you add later in the UI), but it is a fast way to test the app.
 
 ### Manual Pip Installation
 
