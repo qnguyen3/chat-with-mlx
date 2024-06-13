@@ -119,7 +119,7 @@ class GusStyle(Base):
         font: fonts.Font
         | str
         | Iterable[fonts.Font | str] = (
-            fonts.GoogleFont("Inter Tight"),
+            fonts.GoogleFont("Roboto"),
             "ui-sans-serif",
             "sans-serif",
         ),
@@ -178,7 +178,7 @@ def load_model(model_name, lang):
         model, tokenizer = load(local_model_dir, tokenizer_config)
         model_load_status = True
         prev_model = model_name
-        return f"Model {model_name} Loaded", sys_prompt
+        return f"Model {model_name} Loaded ✅", sys_prompt
     except Exception as e:
         return "Exception occurred: {str(e)}"
     
