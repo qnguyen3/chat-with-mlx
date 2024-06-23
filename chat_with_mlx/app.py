@@ -43,7 +43,7 @@ css = """
   border-radius: 35px 35px 0px 35px;
 }
 
-.message-row.bubble.user-row.svelte-gutj6d .md.svelte-1k4ye9u.chatbot.prose p {
+.message-row.bubble.user-row.svelte-gutj6d .md.svelte-1k4ye9u.chatbot.prose {
   color: #fff;
   font-size: 14px;
 }
@@ -76,7 +76,7 @@ css = """
   border-radius: 35px 35px 35px 0px;
 }
 
-.message-row.bubble.bot-row.svelte-gutj6d .md.svelte-1k4ye9u.chatbot.prose p {
+.message-row.bubble.bot-row.svelte-gutj6d .md.svelte-1k4ye9u.chatbot.prose {
   color: #000000;
   font-size: 14px;
 }
